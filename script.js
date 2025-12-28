@@ -38,7 +38,9 @@ function openPlayer(fileId) {
     // The Magic Link: This uses the API to get the raw file stream
     // "alt=media" tells Google to stream the bytes, not show a webpage
    // We add '&acknowledgeAbuse=true' to tell Google "I trust this file, just give it to me."
-const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}&acknowledgeAbuse=true`;
+// We add '&nocache=${Date.now()}' to the end.
+// This forces the browser to fetch a fresh link every single time.
+const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}&acknowledgeAbuse=true&nocache=${Date.now()}`;
     // Initialize Video.js if it doesn't exist yet
     if (!player) {
         player = videojs('my-player');
