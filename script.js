@@ -51,7 +51,7 @@ function openPlayer(fileId) {
     // --- PART 2: THE LINK ---
     // We use Date.now() to create a unique timestamp (nocache)
     // We use acknowledgeAbuse=true to bypass virus warnings
-    const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}&acknowledgeAbuse=true&nocache=${Date.now()}`;
+    const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}&acknowledgeAbuse=true`;
     console.log("TEST LINK:", streamUrl);
     // --- PART 3: INITIALIZE ---
     if (!player) {
