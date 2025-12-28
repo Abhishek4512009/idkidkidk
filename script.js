@@ -52,7 +52,7 @@ function openPlayer(fileId) {
     // We use Date.now() to create a unique timestamp (nocache)
     // We use acknowledgeAbuse=true to bypass virus warnings
     const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}&acknowledgeAbuse=true&nocache=${Date.now()}`;
-
+    console.log("TEST LINK:", streamUrl);
     // --- PART 3: INITIALIZE ---
     if (!player) {
         player = videojs('my-player');
