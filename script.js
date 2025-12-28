@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-const API_KEY = "AIzaSyBjkpshz3qevxyDDvqSyM0sF83F-DU2quI"; // From Step 1
+const API_KEY = "AIzaSyAYrcBjfHKWN4qKXJJUlV7LFzPYGJY4Nbw"; // From Step 1
 
 const movies = [
     { 
