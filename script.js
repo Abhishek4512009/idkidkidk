@@ -1,71 +1,58 @@
-// 1. YOUR MOVIE LIST
-// Paste the FULL URL of the video player you want to use.
+// --- CONFIGURATION ---
+const API_KEY = "AIzaSyBjkpshz3qevxyDDvqSyM0sF83F-DU2quI"; // From Step 1
+
 const movies = [
     { 
-        title: "Action Movie (Drive Player)", 
-        // This uses the official Google Drive Preview (Safe, reliable)
-        url: "https://drive.google.com/file/d/1CwKOe66qu484pJoFcvqNrdI8IItyif36/view?usp=sharing" 
+        title: "My 4K Movie", 
+        id: "YOUR_GOOGLE_DRIVE_FILE_ID" // e.g., 1A2B3C...
     },
     { 
-        title: "Funny Clip (Heroku Player)", 
-        // Paste the FULL link you get from the youfiles.herokuapp.com site here
-        url: "https://youfiles.herokuapp.com/videodictionary/?m=Video_Player_Drive" 
-    },
-    { 
-        title: "My Trailer", 
-        // You can even mix in YouTube links if you want!
-        url: "https://www.youtube.com/embed/dQw4w9WgXcQ" 
+        title: "Vacation Video", 
+        id: "ANOTHER_FILE_ID"
     }
 ];
+// ---------------------
 
-// 2. The UI Logic (Do not touch this part)
 const grid = document.getElementById('video-grid');
 const modal = document.getElementById('video-modal');
-const player = document.getElementById('player-frame');
-const fallbackBtn = document.getElementById('mobile-fallback-btn'); // Setup fallback
+let player = null; // We will initialize this later
 
+// 1. Build the Grid
 movies.forEach(movie => {
     const card = document.createElement('div');
     card.className = 'card';
-    card.style.background = `linear-gradient(45deg, #222, #000)`; // Default dark BG
+    card.style.background = `linear-gradient(45deg, #222, #111)`;
     card.innerHTML = `<div class="card-title">${movie.title}</div>`;
 
     card.onclick = () => {
-        openPlayer(movie.url);
+        openPlayer(movie.id);
     };
 
     grid.appendChild(card);
 });
 
-function openPlayer(videoUrl) {
-    // 1. Load the video into the iframe
-    player.src = videoUrl;
-    
-    // 2. Create a "Open Directly" button for mobile users (Fixes the black screen bug)
-    // We check if it's a Heroku link or Drive link to create the right fallback
-    let directLink = videoUrl;
-    
-    // If it's a Google Drive PREVIEW link, change it to VIEW for the button
-    if(videoUrl.includes("drive.google.com") && videoUrl.includes("preview")) {
-        directLink = videoUrl.replace("preview", "view");
-    }
-
-    // Update the fallback button
-    let btn = document.getElementById('mobile-fallback-btn');
-    if (!btn) {
-        btn = document.createElement('a');
-        btn.id = 'mobile-fallback-btn';
-        btn.className = 'fallback-btn';
-        btn.innerText = "Video stuck? Click to watch in App";
-        btn.target = "_blank";
-        document.querySelector('.modal-content').appendChild(btn);
-    }
-    btn.href = directLink;
-
+// 2. Open Player Logic
+function openPlayer(fileId) {
     modal.style.display = 'flex';
+
+    // The Magic Link: This uses the API to get the raw file stream
+    // "alt=media" tells Google to stream the bytes, not show a webpage
+    const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`;
+
+    // Initialize Video.js if it doesn't exist yet
+    if (!player) {
+        player = videojs('my-player');
+    }
+
+    // Load the new video source
+    player.src({ type: 'video/mp4', src: streamUrl });
+    player.play();
 }
 
+// 3. Close Logic
 function closePlayer() {
     modal.style.display = 'none';
-    player.src = ""; // Stop video immediately
+    if (player) {
+        player.pause();
+    }
 }
