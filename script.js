@@ -6,6 +6,7 @@ const movies = [
     { title: "My First Video", id: "1Jy4GaXQgStFadoU2XQLwDk4AOxJpQqaY" }, // Example ID
     { title: "Vacation 2024", id: "1o5LMqPrsSoaXA8xOoB0z6HbwRfiwmpiL" }, 
     { title: "Heretic", id: "1DQtC18zTU26g9Dow3kfYy-dA449ieBtQ" }
+    { title: "The Shawshank Redemption", id: "1CwKOe66qu484pJoFcvqNrdI8IItyif36" }
 ];
 
 // 2. The Code that builds the UI
