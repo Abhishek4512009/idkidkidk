@@ -32,23 +32,46 @@ movies.forEach(movie => {
 });
 
 // 2. Open Player Logic
+// 2. Open Player Logic
 function openPlayer(fileId) {
+    // --- PART 1: RESET (New Fix) ---
+    // This kills the old video process so the browser doesn't get confused
+    if (player) {
+        player.pause();
+        player.src({ src: "", type: "video/mp4" }); 
+        player.reset(); 
+    }
+    
     modal.style.display = 'flex';
 
-    // The Magic Link: This uses the API to get the raw file stream
-    // "alt=media" tells Google to stream the bytes, not show a webpage
-   // We add '&acknowledgeAbuse=true' to tell Google "I trust this file, just give it to me."
-// We add '&nocache=${Date.now()}' to the end.
-// This forces the browser to fetch a fresh link every single time.
-const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}&acknowledgeAbuse=true&nocache=${Date.now()}`;
-    // Initialize Video.js if it doesn't exist yet
+    // --- PART 2: THE LINK ---
+    // We use Date.now() to create a unique timestamp (nocache)
+    // We use acknowledgeAbuse=true to bypass virus warnings
+    const streamUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}&acknowledgeAbuse=true&nocache=${Date.now()}`;
+
+    // --- PART 3: INITIALIZE ---
     if (!player) {
         player = videojs('my-player');
     }
 
-    // Load the new video source
+    // --- PART 4: PLAY ---
     player.src({ type: 'video/mp4', src: streamUrl });
     player.play();
+
+    // --- PART 5: DOWNLOAD BUTTON ---
+    let dlBtn = document.getElementById('download-btn');
+    
+    if (!dlBtn) {
+        dlBtn = document.createElement('a');
+        dlBtn.id = 'download-btn';
+        dlBtn.className = 'download-btn'; 
+        dlBtn.innerText = "⬇ Download Video";
+        dlBtn.target = "_blank"; 
+        document.querySelector('.modal-content').appendChild(dlBtn);
+    }
+
+    // Update the button to point to the current file
+    dlBtn.href = streamUrl;
 }
 
 // 3. Close Logic
