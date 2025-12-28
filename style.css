@@ -102,3 +102,29 @@ iframe {
     font-size: 40px;
     cursor: pointer;
 }
+/* Keep your previous CSS, but add/update this for the modal */
+
+.modal-content {
+    width: 90%;
+    max-width: 1000px;
+    background: #000;
+    position: relative;
+    /* Aspect Ratio Hack to keep player responsive */
+    aspect-ratio: 16/9; 
+}
+
+/* Force Video.js to fill the box */
+.video-js {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.close-btn {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
+    z-index: 200;
+}
