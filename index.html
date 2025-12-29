@@ -3,20 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream with Subtitles</title>
-    <style>body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }</style>
+    <title>Stream with Subtitle Control</title>
+    <style>
+        body { 
+            background: #000; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            font-family: sans-serif; 
+        }
+        video { 
+            width: 80%; 
+            max-width: 1000px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); 
+        }
+        .controls {
+            margin-top: 20px;
+            background: #222;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        button {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        button:hover { background: #666; }
+        .delay-display { font-family: monospace; font-size: 16px; color: #4da6ff; min-width: 80px; text-align: center; }
+    </style>
 </head>
 <body>
-    <video controls autoplay width="80%" crossorigin="anonymous">
+
+    <video id="player" controls autoplay width="80%" crossorigin="anonymous">
         <source src="https://univ-purchased-annual-chapter.trycloudflare.com/video/1CwKOe66qu484pJoFcvqNrdI8IItyif36" type="video/mp4">
         
         <track 
+            id="subTrack"
             label="English" 
             kind="subtitles" 
             srclang="en" 
-            src="https://univ-purchased-annual-chapter.trycloudflare.com/subs.vtt" 
+            src="https://univ-purchased-annual-chapter.trycloudflare.com/adjust-sub/subs.vtt?delay=0" 
             default
         >
     </video>
+
+    <div class="controls">
+        <span>Subtitle Sync:</span>
+        <button onclick="changeDelay(-500)">- 0.5s</button>
+        <button onclick="changeDelay(-100)">- 0.1s</button>
+        <span id="currentDelay" class="delay-display">0 ms</span>
+        <button onclick="changeDelay(100)">+ 0.1s</button>
+        <button onclick="changeDelay(500)">+ 0.5s</button>
+    </div>
+
+    <script>
+        let currentDelay = 0;
+        const track = document.getElementById('subTrack');
+        const video = document.getElementById('player');
+        const display = document.getElementById('currentDelay');
+        const BASE_URL = "https://univ-purchased-annual-chapter.trycloudflare.com";
+
+        function changeDelay(ms) {
+            currentDelay += ms;
+            
+            // Update UI
+            display.innerText = (currentDelay > 0 ? "+" : "") + currentDelay + " ms";
+            if (currentDelay === 0) display.style.color = "#4da6ff"; // Blue for 0
+            else if (currentDelay > 0) display.style.color = "#ff4d4d"; // Red for delayed
+            else display.style.color = "#4dff88"; // Green for rushed
+
+            // Update Track URL
+            // We add a random number (&t=...) to force the browser to reload the file
+            const newUrl = `${BASE_URL}/adjust-sub/subs.vtt?delay=${currentDelay}&t=${Date.now()}`;
+            
+            track.src = newUrl;
+
+            // Force browser to refresh the track list
+            // Note: Some browsers need you to toggle the mode to refresh
+            if (video.textTracks[0]) {
+                const mode = video.textTracks[0].mode;
+                video.textTracks[0].mode = 'disabled';
+                setTimeout(() => {
+                    video.textTracks[0].mode = mode; // Turn it back on
+                }, 100);
+            }
+        }
+    </script>
+
 </body>
 </html>
