@@ -23,7 +23,6 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.5); 
         }
         
-        /* Main Control Container */
         .control-panel {
             margin-top: 20px;
             background: #222;
@@ -37,7 +36,6 @@
             max-width: 1000px;
         }
 
-        /* Subtitle Button Group */
         .sub-controls {
             display: flex;
             gap: 8px;
@@ -60,7 +58,6 @@
         }
         button:hover { background: #666; }
         
-        /* Specific Colors for +/- */
         .btn-minus { border-bottom: 2px solid #ff4d4d; }
         .btn-plus { border-bottom: 2px solid #4dff88; }
 
@@ -73,7 +70,6 @@
             font-weight: bold;
         }
 
-        /* Download Button */
         .download-btn {
             background: #28a745;
             color: white;
@@ -93,36 +89,12 @@
 <body>
 
     <video id="player" controls autoplay width="80%" crossorigin="anonymous">
-        <script>
-        // 1. GET THE ID FROM URL (e.g., index.html?id=12345)
-        const urlParams = new URLSearchParams(window.location.search);
-        const FILE_ID = urlParams.get('id'); // This is the dynamic ID
-        
-        // If no ID is found, fallback to your default one (optional)
-        const activeFileId = FILE_ID || '1CwKOe66qu484pJoFcvqNrdI8IItyif36';
-
-        const BASE_URL = "https://univ-purchased-annual-chapter.trycloudflare.com";
-        const video = document.getElementById('player');
-        const track = document.getElementById('subTrack');
-        const downloadBtn = document.getElementById('downloadLink'); // Add id="downloadLink" to your <a> tag
-
-        // 2. INJECT THE DYNAMIC SOURCE
-        video.src = `${BASE_URL}/video/${activeFileId}`;
-        video.load(); // Tell browser to reload source
-
-        // Update Download Button
-        if(downloadBtn) {
-            downloadBtn.href = `${BASE_URL}/download/${activeFileId}`;
-        }
-        
-        // ... rest of your subtitle code ...
-        
         <track 
             id="subTrack"
             label="English" 
             kind="subtitles" 
             srclang="en" 
-            src="https://univ-purchased-annual-chapter.trycloudflare.com/adjust-sub/subs.vtt?delay=0" 
+            src="" 
             default
         >
     </video>
@@ -145,45 +117,61 @@
             <button class="btn-plus" onclick="changeDelay(500)">+0.5s</button>
         </div>
 
-       <div>
-    <a href="https://univ-purchased-annual-chapter.trycloudflare.com/download/1CwKOe66qu484pJoFcvqNrdI8IItyif36" class="download-btn">
-        ⚡ Fast Download
-    </a>
-</div>
+        <div>
+            <a id="downloadLink" href="#" class="download-btn">
+                ⚡ Fast Download
+            </a>
+        </div>
 
     </div>
 
     <script>
-        let currentDelay = 0;
-        const track = document.getElementById('subTrack');
-        const video = document.getElementById('player');
-        const display = document.getElementById('currentDelay');
-        
-        // Configuration
+        // --- 1. CONFIGURATION ---
         const BASE_URL = "https://univ-purchased-annual-chapter.trycloudflare.com";
+        // Fallback ID if none provided in URL
+        const DEFAULT_ID = '1CwKOe66qu484pJoFcvqNrdI8IItyif36'; 
 
+        // --- 2. SETUP ELEMENTS ---
+        const video = document.getElementById('player');
+        const track = document.getElementById('subTrack');
+        const downloadBtn = document.getElementById('downloadLink');
+        const display = document.getElementById('currentDelay');
+        let currentDelay = 0;
+
+        // --- 3. DYNAMIC ID LOGIC ---
+        // Get ID from URL (e.g. index.html?id=123) or use default
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeFileId = urlParams.get('id') || DEFAULT_ID;
+
+        // Apply ID to Video and Download Button
+        video.src = `${BASE_URL}/video/${activeFileId}`;
+        downloadBtn.href = `${BASE_URL}/download/${activeFileId}`;
+        
+        // Initial Subtitle Load
+        track.src = `${BASE_URL}/adjust-sub/subs.vtt?delay=0`;
+        video.load(); // Start loading
+
+        // --- 4. SUBTITLE DELAY LOGIC ---
         function changeDelay(ms) {
             currentDelay += ms;
             
-            // Update UI
+            // Update UI Text Color
             display.innerText = (currentDelay > 0 ? "+" : "") + currentDelay + " ms";
-            
-            if (currentDelay === 0) display.style.color = "#4da6ff"; // Blue (Normal)
-            else if (currentDelay > 0) display.style.color = "#4dff88"; // Green (Positive)
-            else display.style.color = "#ff4d4d"; // Red (Negative)
+            if (currentDelay === 0) display.style.color = "#4da6ff"; 
+            else if (currentDelay > 0) display.style.color = "#4dff88"; 
+            else display.style.color = "#ff4d4d"; 
 
-            // Construct new URL with timestamp to force reload
+            // Update Track URL with timestamp to force reload
             const newUrl = `${BASE_URL}/adjust-sub/subs.vtt?delay=${currentDelay}&t=${Date.now()}`;
-            
             track.src = newUrl;
 
-            // Force the browser to refresh the subtitle track
+            // Force browser refresh
             if (video.textTracks[0]) {
                 const mode = video.textTracks[0].mode;
                 video.textTracks[0].mode = 'disabled';
                 setTimeout(() => {
                     video.textTracks[0].mode = mode;
-                }, 50); // Slight delay to ensure browser register change
+                }, 50);
             }
         }
     </script>
