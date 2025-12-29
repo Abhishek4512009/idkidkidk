@@ -93,7 +93,29 @@
 <body>
 
     <video id="player" controls autoplay width="80%" crossorigin="anonymous">
-        <source src="https://univ-purchased-annual-chapter.trycloudflare.com/video/1CwKOe66qu484pJoFcvqNrdI8IItyif36" type="video/mp4">
+        <script>
+        // 1. GET THE ID FROM URL (e.g., index.html?id=12345)
+        const urlParams = new URLSearchParams(window.location.search);
+        const FILE_ID = urlParams.get('id'); // This is the dynamic ID
+        
+        // If no ID is found, fallback to your default one (optional)
+        const activeFileId = FILE_ID || '1CwKOe66qu484pJoFcvqNrdI8IItyif36';
+
+        const BASE_URL = "https://univ-purchased-annual-chapter.trycloudflare.com";
+        const video = document.getElementById('player');
+        const track = document.getElementById('subTrack');
+        const downloadBtn = document.getElementById('downloadLink'); // Add id="downloadLink" to your <a> tag
+
+        // 2. INJECT THE DYNAMIC SOURCE
+        video.src = `${BASE_URL}/video/${activeFileId}`;
+        video.load(); // Tell browser to reload source
+
+        // Update Download Button
+        if(downloadBtn) {
+            downloadBtn.href = `${BASE_URL}/download/${activeFileId}`;
+        }
+        
+        // ... rest of your subtitle code ...
         
         <track 
             id="subTrack"
