@@ -49,7 +49,9 @@
     </div>
 
     <script>
-        const SERVER_URL = 'http://localhost:3000';
+        // --- CONFIGURATION ---
+        // 🔴 CHANGE THIS TO YOUR CLOUDFLARE URL
+        const SERVER_URL = 'https://univ-purchased-annual-chapter.trycloudflare.com';
 
         async function loadLibrary() {
             const grid = document.getElementById('movieGrid');
@@ -62,13 +64,16 @@
 
                 movies.forEach(movie => {
                     const card = document.createElement('a');
-                    // We link to index.html and pass the ID in the URL
+                    
+                    // ✅ LINKS TO YOUR PLAYER FILE
                     card.href = `index.html?id=${movie.id}`; 
+                    
                     card.className = 'card';
+                    card.target = "_self"; // Opens in same tab
 
                     const sizeMB = (parseInt(movie.size) / 1024 / 1024).toFixed(0);
                     
-                    // Note: Google thumbnails are small by default. We replace s220 with s600 to get high-res.
+                    // Fix Google low-res thumbnails
                     const thumb = movie.thumbnailLink ? movie.thumbnailLink.replace('=s220', '=s600') : 'https://via.placeholder.com/200x300?text=No+Poster';
 
                     card.innerHTML = `
