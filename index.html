@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream with Subtitle Control</title>
+    <title>Stream with Advanced Controls</title>
     <style>
         body { 
             background: #000; 
@@ -12,7 +12,7 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
             font-family: sans-serif; 
         }
@@ -22,27 +22,72 @@
             border-radius: 8px; 
             box-shadow: 0 0 50px rgba(0,0,0,0.5); 
         }
-        .controls {
+        
+        /* Main Control Container */
+        .control-panel {
             margin-top: 20px;
             background: #222;
-            padding: 15px 30px;
-            border-radius: 50px;
+            padding: 15px 20px;
+            border-radius: 15px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 15px;
+            align-items: center;
+            width: 80%;
+            max-width: 1000px;
         }
+
+        /* Subtitle Button Group */
+        .sub-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
         button {
             background: #444;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 14px;
             transition: 0.2s;
+            font-family: monospace;
         }
         button:hover { background: #666; }
-        .delay-display { font-family: monospace; font-size: 16px; color: #4da6ff; min-width: 80px; text-align: center; }
+        
+        /* Specific Colors for +/- */
+        .btn-minus { border-bottom: 2px solid #ff4d4d; }
+        .btn-plus { border-bottom: 2px solid #4dff88; }
+
+        .delay-display { 
+            font-family: monospace; 
+            font-size: 18px; 
+            color: #4da6ff; 
+            min-width: 100px; 
+            text-align: center; 
+            font-weight: bold;
+        }
+
+        /* Download Button */
+        .download-btn {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .download-btn:hover { background: #218838; transform: scale(1.05); }
+
     </style>
 </head>
 <body>
@@ -60,13 +105,30 @@
         >
     </video>
 
-    <div class="controls">
-        <span>Subtitle Sync:</span>
-        <button onclick="changeDelay(-500)">- 0.5s</button>
-        <button onclick="changeDelay(-100)">- 0.1s</button>
-        <span id="currentDelay" class="delay-display">0 ms</span>
-        <button onclick="changeDelay(100)">+ 0.1s</button>
-        <button onclick="changeDelay(500)">+ 0.5s</button>
+    <div class="control-panel">
+        
+        <div class="sub-controls">
+            <span style="margin-right: 10px; color: #aaa;">Sync:</span>
+            
+            <button class="btn-minus" onclick="changeDelay(-500)">-0.5s</button>
+            <button class="btn-minus" onclick="changeDelay(-100)">-0.1s</button>
+            <button class="btn-minus" onclick="changeDelay(-50)">-0.05s</button>
+            <button class="btn-minus" onclick="changeDelay(-10)">-0.01s</button>
+
+            <span id="currentDelay" class="delay-display">0 ms</span>
+
+            <button class="btn-plus" onclick="changeDelay(10)">+0.01s</button>
+            <button class="btn-plus" onclick="changeDelay(50)">+0.05s</button>
+            <button class="btn-plus" onclick="changeDelay(100)">+0.1s</button>
+            <button class="btn-plus" onclick="changeDelay(500)">+0.5s</button>
+        </div>
+
+        <div>
+            <a href="https://univ-purchased-annual-chapter.trycloudflare.com/video/1CwKOe66qu484pJoFcvqNrdI8IItyif36" download class="download-btn" target="_blank">
+                ⬇ Download Video
+            </a>
+        </div>
+
     </div>
 
     <script>
@@ -74,6 +136,8 @@
         const track = document.getElementById('subTrack');
         const video = document.getElementById('player');
         const display = document.getElementById('currentDelay');
+        
+        // Configuration
         const BASE_URL = "https://univ-purchased-annual-chapter.trycloudflare.com";
 
         function changeDelay(ms) {
@@ -81,24 +145,23 @@
             
             // Update UI
             display.innerText = (currentDelay > 0 ? "+" : "") + currentDelay + " ms";
-            if (currentDelay === 0) display.style.color = "#4da6ff"; // Blue for 0
-            else if (currentDelay > 0) display.style.color = "#ff4d4d"; // Red for delayed
-            else display.style.color = "#4dff88"; // Green for rushed
+            
+            if (currentDelay === 0) display.style.color = "#4da6ff"; // Blue (Normal)
+            else if (currentDelay > 0) display.style.color = "#4dff88"; // Green (Positive)
+            else display.style.color = "#ff4d4d"; // Red (Negative)
 
-            // Update Track URL
-            // We add a random number (&t=...) to force the browser to reload the file
+            // Construct new URL with timestamp to force reload
             const newUrl = `${BASE_URL}/adjust-sub/subs.vtt?delay=${currentDelay}&t=${Date.now()}`;
             
             track.src = newUrl;
 
-            // Force browser to refresh the track list
-            // Note: Some browsers need you to toggle the mode to refresh
+            // Force the browser to refresh the subtitle track
             if (video.textTracks[0]) {
                 const mode = video.textTracks[0].mode;
                 video.textTracks[0].mode = 'disabled';
                 setTimeout(() => {
-                    video.textTracks[0].mode = mode; // Turn it back on
-                }, 100);
+                    video.textTracks[0].mode = mode;
+                }, 50); // Slight delay to ensure browser register change
             }
         }
     </script>
