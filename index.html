@@ -3,23 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream Debugger</title>
+    <title>Stream with Advanced Controls</title>
     <style>
         body { 
-            background: #000; color: #fff; font-family: sans-serif;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; margin: 0; 
+            background: #000; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            font-family: sans-serif; 
         }
-        video { width: 80%; max-width: 1000px; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
-        .control-panel { margin-top: 20px; background: #222; padding: 15px; border-radius: 15px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-        .debug-info { color: #ffff00; font-family: monospace; margin-bottom: 10px; background: #333; padding: 5px 10px; border-radius: 4px; }
+        video { 
+            width: 80%; 
+            max-width: 1000px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); 
+        }
         
-        /* Buttons */
-        button { background: #444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 0 2px; }
+        .control-panel {
+            margin-top: 20px;
+            background: #222;
+            padding: 15px 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .debug-info { 
+            color: #ffff00; 
+            font-family: monospace; 
+            margin-bottom: 10px; 
+            background: #333; 
+            padding: 5px 10px; 
+            border-radius: 4px; 
+        }
+
+        .sub-controls {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: 0.2s;
+            font-family: monospace;
+        }
         button:hover { background: #666; }
+        
         .btn-minus { border-bottom: 2px solid #ff4d4d; }
         .btn-plus { border-bottom: 2px solid #4dff88; }
-        .download-btn { background: #28a745; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; }
+
+        .delay-display { 
+            font-family: monospace; 
+            font-size: 18px; 
+            color: #4da6ff; 
+            min-width: 90px; 
+            text-align: center; 
+            font-weight: bold;
+        }
+
+        .download-btn {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .download-btn:hover { background: #218838; transform: scale(1.05); }
+
     </style>
 </head>
 <body>
@@ -31,15 +104,29 @@
     </video>
 
     <div class="control-panel">
-        <div>
-            <span style="color: #aaa;">Sync:</span>
+        
+        <div class="sub-controls">
+            <span style="margin-right: 10px; color: #aaa;">Sync:</span>
+            
             <button class="btn-minus" onclick="changeDelay(-500)">-0.5s</button>
             <button class="btn-minus" onclick="changeDelay(-100)">-0.1s</button>
-            <span id="currentDelay" style="color: #4da6ff; font-weight: bold; min-width: 60px; display: inline-block; text-align: center;">0 ms</span>
+            <button class="btn-minus" onclick="changeDelay(-50)">-0.05s</button>
+            <button class="btn-minus" onclick="changeDelay(-10)">-0.01s</button>
+
+            <span id="currentDelay" class="delay-display">0 ms</span>
+
+            <button class="btn-plus" onclick="changeDelay(10)">+0.01s</button>
+            <button class="btn-plus" onclick="changeDelay(50)">+0.05s</button>
             <button class="btn-plus" onclick="changeDelay(100)">+0.1s</button>
             <button class="btn-plus" onclick="changeDelay(500)">+0.5s</button>
         </div>
-        <a id="downloadLink" href="#" class="download-btn">⚡ Fast Download</a>
+
+        <div>
+            <a id="downloadLink" href="#" class="download-btn">
+                ⚡ Fast Download
+            </a>
+        </div>
+
     </div>
 
     <script>
@@ -52,44 +139,45 @@
         const track = document.getElementById('subTrack');
         const downloadBtn = document.getElementById('downloadLink');
         const debugBox = document.getElementById('debugDisplay');
+        const display = document.getElementById('currentDelay');
         
         // --- 1. GET ID FROM URL ---
         const urlParams = new URLSearchParams(window.location.search);
         let activeFileId = urlParams.get('id');
 
-        // Debugging Logic
+        // Debug Logic: Visual Feedback
         if (activeFileId) {
             debugBox.innerText = `✅ Found ID: ${activeFileId}`;
             debugBox.style.color = "#4dff88"; // Green
         } else {
             activeFileId = DEFAULT_ID;
-            debugBox.innerText = `⚠️ No ID in URL. Using Default: ${activeFileId}`;
+            debugBox.innerText = `⚠️ No ID in URL. Using Default.`;
             debugBox.style.color = "#ffff00"; // Yellow
         }
 
         // --- 2. APPLY SOURCES ---
-        // Video Source
         video.src = `${BASE_URL}/video/${activeFileId}`;
-        
-        // Download Link
         downloadBtn.href = `${BASE_URL}/download/${activeFileId}`;
-        
-        // Subtitles
         track.src = `${BASE_URL}/adjust-sub/subs.vtt?delay=0`;
 
-        // Force Reload
-        video.load();
+        video.load(); // Force reload
 
         // --- 3. SUBTITLE CONTROL ---
         let currentDelay = 0;
         function changeDelay(ms) {
             currentDelay += ms;
-            document.getElementById('currentDelay').innerText = (currentDelay > 0 ? "+" : "") + currentDelay + " ms";
             
-            // Reload track with new delay timestamp
-            track.src = `${BASE_URL}/adjust-sub/subs.vtt?delay=${currentDelay}&t=${Date.now()}`;
-            
-            // Browser Refresh Hack
+            // Update Text Color based on delay
+            display.innerText = (currentDelay > 0 ? "+" : "") + currentDelay + " ms";
+            if (currentDelay === 0) display.style.color = "#4da6ff"; 
+            else if (currentDelay > 0) display.style.color = "#4dff88"; 
+            else display.style.color = "#ff4d4d"; 
+
+            // Update Track Source
+            const newUrl = `${BASE_URL}/adjust-sub/subs.vtt?delay=${currentDelay}&t=${Date.now()}`;
+            track.src = newUrl;
+
+            // Browser Refresh Hack (Toggle track off/on)
             if (video.textTracks[0]) {
                 const mode = video.textTracks[0].mode;
                 video.textTracks[0].mode = 'disabled';
