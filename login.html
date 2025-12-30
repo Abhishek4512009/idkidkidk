@@ -71,6 +71,10 @@
     </div>
 
     <script>
+        // 🔴 CRITICAL: PASTE YOUR SERVE/PLAYIT TUNNEL LINK HERE
+        // Example: 'https://my-movie-server.serveo.net' (No slash at the end)
+        const SERVER_URL = 'https://mystream.loca.lt'; 
+
         let isLogin = true;
         const form = document.getElementById('authForm');
         const title = document.getElementById('title');
@@ -90,7 +94,9 @@
             e.preventDefault();
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
-            const endpoint = isLogin ? '/login' : '/register';
+            
+            // We now attach the SERVER_URL because GitHub is a stranger to your PC
+            const endpoint = isLogin ? `${SERVER_URL}/login` : `${SERVER_URL}/register`;
 
             // Visual feedback
             btn.innerText = "Loading...";
@@ -100,14 +106,18 @@
                 const res = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    
+                    // 🔴 THIS IS THE KEY FIX:
+                    credentials: 'include', 
+                    
                     body: JSON.stringify({ username: user, password: pass })
                 });
 
                 const data = await res.json();
                 
                 if (res.ok) {
-                    // Success! Redirect to the movies
-                    window.location.href = '/index.html'; 
+                    // Success! Redirect to the movies (Relative link stays same)
+                    window.location.href = 'index.html'; 
                 } else {
                     // Show error
                     errorMsg.innerText = data.message;
@@ -116,7 +126,8 @@
                     btn.disabled = false;
                 }
             } catch (err) {
-                errorMsg.innerText = "Cannot connect to server";
+                console.error(err);
+                errorMsg.innerText = "Cannot connect to server (Check SERVER_URL)";
                 errorMsg.style.display = 'block';
                 btn.innerText = isLogin ? "Sign In" : "Register";
                 btn.disabled = false;
