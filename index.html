@@ -2,147 +2,176 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FreakyMustard Uplink</title>
     <style>
-        /* --- GLOBAL RESET --- */
-        * { box-sizing: border-box; }
+        /* --- GLOBAL SETUP --- */
         body { 
             margin: 0; overflow: hidden; background: #000; 
             font-family: 'Courier New', Courier, monospace; 
-            height: 100dvh; /* Mobile viewport fix */
-            width: 100vw;
-            display: flex; align-items: center; justify-content: center;
+            height: 100vh; width: 100vw;
         }
 
-        /* ================= PHASE 1: SPACE HUD ================= */
+        /* ================= PHASE 1: SPACE HUD STYLES ================= */
         #phase-space {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center; /* Always Center */
+            display: flex; align-items: center; justify-content: flex-start;
+            padding-left: 5vw; box-sizing: border-box;
             transition: opacity 1s;
-            z-index: 10;
         }
         
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
 
         .hud-container {
-            position: relative; z-index: 20; 
-            width: 90%; max-width: 500px; /* Responsive Width */
-            background: rgba(10, 12, 15, 0.9);
-            border: 1px solid #333;
-            border-left: 4px solid #00ffff; 
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.15);
-            border-radius: 15px; 
-            padding: 30px;
-            text-align: left; 
-            animation: bootUp 0.8s ease-out forwards;
-            backdrop-filter: blur(10px);
+            position: relative; z-index: 10; width: 450px;
+            background: rgba(10, 10, 12, 0.90);
+            border-left: 4px solid #00ffff; border-right: 1px solid #333; border-top: 1px solid #333; border-bottom: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.1);
+            border-radius: 0 25px 25px 0; padding: 35px;
+            text-align: left; opacity: 0; transform: translateX(-50px);
+            animation: slideIn 0.8s forwards ease-out;
+            backdrop-filter: blur(5px);
         }
 
-        /* Header */
-        .profile-header { 
-            border-bottom: 1px dashed rgba(0, 255, 255, 0.3); 
-            padding-bottom: 20px; margin-bottom: 20px; 
-            display: flex; align-items: center; gap: 20px; 
-        }
-        
-        .avatar-img { 
-            width: 70px; height: 70px; object-fit: cover; 
-            border-radius: 12px; border: 2px solid #fff; 
-            box-shadow: 0 0 20px rgba(229, 9, 20, 0.5); 
-        }
-        
-        .header-text h1 { 
-            margin: 0; color: #fff; font-size: 1.5rem; 
-            letter-spacing: 2px; text-transform: uppercase; 
-            font-family: sans-serif; font-weight: 800; 
-        }
-        .role { 
-            color: #00ffff; font-size: 0.75rem; 
-            letter-spacing: 2px; margin-top: 5px; font-weight: bold; 
-        }
+        .profile-header { border-bottom: 1px dashed #00ffff; padding-bottom: 25px; margin-bottom: 25px; display: flex; align-items: center; gap: 25px; }
+        .avatar-img { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 2px solid #fff; box-shadow: 0 0 20px rgba(229, 9, 20, 0.8); }
+        h1 { margin: 0; color: #fff; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; font-family: sans-serif; font-weight: 800; }
+        .role { color: #00ffff; font-size: 0.8rem; letter-spacing: 3px; margin-top: 8px; font-weight: bold; }
 
-        /* Social Buttons */
-        .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        
+        .social-grid { display: flex; gap: 15px; margin-top: 15px; }
         .social-link {
-            text-decoration: none; color: #00ffff; font-size: 0.8rem; padding: 12px;
-            background: rgba(0, 255, 255, 0.05); border: 1px solid rgba(0, 255, 255, 0.3);
-            text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
-            text-align: center; transition: 0.2s;
+            position: relative; text-decoration: none; color: #00ffff; font-size: 0.75rem; padding: 12px 25px;
+            background: rgba(0, 20, 20, 0.6); border: 1px solid #00ffff; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.3s ease; overflow: hidden; flex: 1; text-align: center;
         }
-        .social-link:hover { background: #00ffff; color: #000; box-shadow: 0 0 15px #00ffff; }
+        .social-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); transition: 0.5s; }
+        .social-link:hover::before { left: 100%; }
+        .insta:hover { background: #E1306C; color: white; border-color: #E1306C; box-shadow: 0 0 20px #E1306C; }
+        .reddit:hover { background: #FF4500; color: white; border-color: #FF4500; box-shadow: 0 0 20px #FF4500; }
 
-        /* Terminal */
-        .status-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: #00ffff; margin-bottom: 8px; font-weight: bold; }
+        .status-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: #00ffff; margin-bottom: 8px; letter-spacing: 2px; font-weight: bold; }
         
         .terminal-window { 
-            background: #000; border: 1px solid #222; 
-            height: 150px; padding: 10px; 
-            text-align: left; font-size: 0.8rem; 
-            overflow-y: auto; margin-bottom: 20px; color: #0f0; 
-            font-family: 'Courier New', monospace; 
+            background: #000; border: 1px solid #222; height: 220px; padding: 15px; 
+            text-align: left; font-size: 0.9rem; overflow-y: auto; margin-bottom: 25px; 
+            color: #0f0; text-shadow: 0 0 3px rgba(0, 255, 0, 0.6); 
+            font-family: 'Courier New', monospace; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); 
+            /* Hide scrollbar but allow scroll */
+            scrollbar-width: none; -ms-overflow-style: none;
         }
-        
-        .line { margin-bottom: 5px; opacity: 0; animation: fadeIn 0.1s forwards; }
-        
-        /* Progress Bar */
-        .status-bar { width: 100%; height: 4px; background: #222; border-radius: 2px; overflow: hidden; }
-        .progress { height: 100%; width: 0%; background: #00ffff; box-shadow: 0 0 10px #00ffff; animation: load 12s linear forwards; }
+        .terminal-window::-webkit-scrollbar { display: none; }
 
-        /* Skip Button */
+        .line { margin-bottom: 8px; padding-left: 10px; border-left: 2px solid transparent; opacity: 0; animation: fadeIn 0.3s forwards; }
+        .line.active { border-left: 2px solid #0f0; background: rgba(0, 255, 0, 0.1); }
+        
+        .status-bar { width: 100%; height: 6px; background: #111; overflow: hidden; border-radius: 3px; }
+        .progress { height: 100%; width: 0%; background: #00ffff; box-shadow: 0 0 15px #00ffff; animation: load 12s linear forwards; }
+
+        /* --- THE NEW SKIP BUTTON --- */
         .skip-container {
-            position: absolute; bottom: 30px; width: 100%;
-            display: flex; justify-content: center;
-            z-index: 30;
+            position: absolute; bottom: 40px; right: 60px; z-index: 20;
         }
         .warp-btn {
-            background: rgba(0,0,0,0.8); color: #00ffff; 
-            font-family: sans-serif; font-size: 1rem; font-weight: 800; 
-            letter-spacing: 2px; padding: 12px 30px; 
-            border: 2px solid #00ffff; text-transform: uppercase; 
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            background: transparent; color: #00ffff; font-family: sans-serif;
+            font-size: 1.2rem; font-weight: 800; letter-spacing: 3px;
+            padding: 15px 40px; border: 2px solid #00ffff;
+            text-transform: uppercase; cursor: pointer;
+            position: relative; overflow: hidden; transition: 0.3s;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            animation: pulseBtn 2s infinite;
         }
-        .warp-btn:active { transform: scale(0.95); background: #00ffff; color: #000; }
-
-        /* ================= PHASE 2: RETRO TV ================= */
+        .warp-btn:hover { background: #00ffff; color: #000; box-shadow: 0 0 40px #00ffff; transform: scale(1.05); }
+        
+        /* ================= PHASE 2: RETRO TV STYLES ================= */
         #phase-retro {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0000aa; color: white; z-index: 100;
+            display: none; /* Hidden at start */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0000aa; /* Blue Screen */
+            color: white; z-index: 100;
             flex-direction: column; align-items: center; justify-content: center;
-            font-size: 8vw; /* Responsive Text */
-            font-weight: bold; text-shadow: 4px 4px #000;
+            font-size: 4rem; font-weight: bold; text-shadow: 4px 4px #000;
             text-transform: uppercase;
         }
+        
+        /* CRT OVERLAYS */
         .crt-scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%; pointer-events: none;
+            background-size: 100% 2px, 3px 100%; pointer-events: none; z-index: 101;
+        }
+        .crt-vignette {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none; z-index: 102;
         }
 
-        /* ================= MOBILE OPTIMIZATIONS ================= */
-        @media (max-width: 600px) {
-            .hud-container { 
-                padding: 20px; 
-                margin-bottom: 60px; /* Make room for skip button */
-            }
-            
-            .profile-header { 
-                flex-direction: column; text-align: center; gap: 10px; 
-            }
-            
-            h1 { font-size: 1.5rem; }
-            .terminal-window { height: 120px; }
-            
-            /* Ensure Skip Button isn't covering content */
-            .skip-container { bottom: 20px; }
-        }
+        .retro-text { animation: blink 1s infinite; }
+        .channel-id { position: absolute; top: 50px; left: 60px; font-size: 2rem; }
 
-        @keyframes bootUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        /* ================= ANIMATIONS ================= */
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
         @keyframes fadeIn { to { opacity: 1; } }
         @keyframes load { to { width: 100%; } }
+        @keyframes pulseBtn { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ================= MOBILE RESPONSIVENESS ================= */
+        @media (max-width: 768px) {
+            #phase-space {
+                padding: 0;
+                justify-content: center; /* Center horizontally */
+            }
+
+            .hud-container {
+                width: 85%; /* Mostly full width */
+                padding: 25px;
+                border-radius: 15px;
+                border-left: 1px solid #333; /* Remove thick left border */
+                border: 1px solid rgba(0, 255, 255, 0.3); /* Even border */
+                text-align: center; /* Center text */
+                transform: translateY(20px); /* Slight animation shift */
+                animation: slideUp 0.8s forwards ease-out;
+            }
+
+            @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+            .profile-header {
+                flex-direction: column; /* Stack image on top of name */
+                gap: 15px;
+                padding-bottom: 15px; margin-bottom: 15px;
+            }
+
+            .profile-header div { text-align: center; }
+            h1 { font-size: 1.5rem; }
+            
+            .terminal-window {
+                height: 100px; /* Smaller terminal */
+                font-size: 0.7rem; /* Smaller text */
+                margin-bottom: 15px;
+            }
+
+            .line { margin-bottom: 4px; } /* Tighter lines */
+
+            /* Move button to bottom center */
+            .skip-container {
+                bottom: 30px; 
+                right: auto; 
+                left: 50%; 
+                transform: translateX(-50%);
+                width: 100%;
+                display: flex; 
+                justify-content: center;
+            }
+
+            .warp-btn {
+                font-size: 1rem;
+                padding: 12px 30px;
+                background: rgba(0,0,0,0.5); /* Readable background */
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -153,38 +182,80 @@
         <div class="hud-container">
             <div class="profile-header">
                 <img src="logo.png" class="avatar-img" alt="Icon">
-                <div class="header-text">
+                <div>
                     <h1>FreakyMustard</h1>
-                    <div class="role">SECURE UPLINK V4.2</div>
+                    <div class="role">SECURE MOVIE UPLINK V4.2</div>
                 </div>
             </div>
 
             <div class="social-grid">
-                <a href="https://instagram.com/freakymustard67" target="_blank" class="social-link">Instagram</a>
-                <a href="https://reddit.com/u/Outrageous_Cat7599" target="_blank" class="social-link">Reddit</a>
+                <a href="https://www.instagram.com/freakymustard67?igsh=OGh2eHliM3Zwamlm" target="_blank" class="social-link insta">Instagram</a>
+                <a href="https://www.reddit.com/u/Outrageous_Cat7599/s/kTwo5zzOeW" target="_blank" class="social-link reddit">Reddit</a>
             </div>
 
+            <br>
             <div class="status-header"><span>SYSTEM LOG</span><span id="percent">0%</span></div>
             <div class="terminal-window" id="console"></div>
-            
-            <div class="status-header"><span>LINK STATUS</span></div>
+            <div class="status-header"><span>TUNNEL INTEGRITY</span></div>
             <div class="status-bar"><div class="progress"></div></div>
         </div>
 
         <div class="skip-container">
-            <button class="warp-btn" onclick="triggerWarp()">WARP JUMP >></button>
+            <button class="warp-btn" onclick="triggerWarp()">
+                ⚡ WARP JUMP
+            </button>
         </div>
     </div>
 
     <div id="phase-retro">
         <div class="crt-scanlines"></div>
-        <div id="retro-msg">▶ PLAY</div>
+        <div class="crt-vignette"></div>
+        <div class="channel-id">AV-1</div>
+        <div class="retro-text" id="retro-msg">▶ PLAY</div>
     </div>
 
     <script>
+        /* ================= CONFIGURATION ================= */
         const TARGET_URL = "https://river-graph-supplies-goes.trycloudflare.com"; 
-        
-        // --- 1. CANVAS STARFIELD ---
+        /* ================================================= */
+
+        let hasSkipped = false;
+        let speed = 0.5;
+
+        // --- 1. TRANSITION LOGIC ---
+        function triggerWarp() {
+            if(hasSkipped) return;
+            hasSkipped = true;
+
+            // Speed up stars instantly
+            speed = 80;
+
+            // Fade out Space Phase
+            document.getElementById('phase-space').style.opacity = '0';
+
+            // Wait 1s for fade, then switch to Retro Phase
+            setTimeout(() => {
+                document.getElementById('phase-space').style.display = 'none';
+                document.getElementById('phase-retro').style.display = 'flex';
+                
+                // Play Retro sequence
+                runRetroSequence();
+            }, 1000);
+        }
+
+        function runRetroSequence() {
+            const msg = document.getElementById('retro-msg');
+            
+            // 1. Show PLAY
+            setTimeout(() => { msg.innerText = "TRACKING..."; }, 1500);
+            
+            // 2. Redirect
+            setTimeout(() => { 
+                window.location.href = TARGET_URL; 
+            }, 3000);
+        }
+
+        // --- 2. CANVAS LOGIC ---
         const canvas = document.getElementById("space");
         const ctx = canvas.getContext("2d");
         
@@ -192,64 +263,83 @@
         window.addEventListener('resize', resize); resize();
 
         let stars = [];
-        let speed = 0.5;
         let tunnelFound = false;
+        let tunnelRadius = 0;
+        let rotation = 0;
+        
+        // Initial Target Positioning
+        let targetX = canvas.width * 0.75; 
+        let targetY = canvas.height / 2; 
+        let driftTime = 0;
 
-        // Init Stars
-        for(let i=0; i<800; i++) stars.push({ x: Math.random()*canvas.width - canvas.width/2, y: Math.random()*canvas.height - canvas.height/2, z: Math.random()*canvas.width });
+        for (let i = 0; i < 1000; i++) {
+            stars.push({ x: Math.random() * canvas.width - canvas.width/2, y: Math.random() * canvas.height - canvas.height/2, z: Math.random() * canvas.width });
+        }
 
-        function draw() {
-            ctx.fillStyle = "black"; ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = "white";
+        function drawStars() {
+            ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            stars.forEach(s => {
-                s.z -= speed;
-                if(s.z <= 0) { s.z = canvas.width; s.x = Math.random()*canvas.width - canvas.width/2; s.y = Math.random()*canvas.height - canvas.height/2; }
-                
-                const x = (s.x / s.z) * canvas.width + canvas.width/2;
-                const y = (s.y / s.z) * canvas.height + canvas.height/2;
-                
-                if(speed > 10) {
-                    ctx.strokeStyle = "rgba(200,255,255,0.5)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x,y); 
-                    ctx.lineTo(x + (x-canvas.width/2)*0.1, y + (y-canvas.height/2)*0.1); ctx.stroke();
-                } else {
-                    const size = (1 - s.z/canvas.width) * 2;
-                    ctx.fillRect(x,y,size,size);
-                }
+            // Responsive Target Logic
+            let centerX, centerY;
+            if (window.innerWidth < 768) {
+                // Mobile: Center target
+                centerX = canvas.width / 2;
+                centerY = canvas.height / 2;
+            } else {
+                // Desktop: Target on right
+                centerX = canvas.width * 0.75;
+                centerY = canvas.height / 2;
+            }
+            
+            if (!tunnelFound) { 
+                driftTime += 0.02; 
+                targetX = centerX + Math.sin(driftTime) * 50; 
+                targetY = centerY + Math.cos(driftTime * 1.5) * 50; 
+            } else { 
+                // Snap to center when found
+                targetX += (centerX - targetX) * 0.1; 
+                targetY += (centerY - targetY) * 0.1; 
+            }
+
+            rotation += 0.02; ctx.strokeStyle = tunnelFound ? "#00ff00" : "#ff0044"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(targetX, targetY, 120, 0, Math.PI * 2); ctx.setLineDash([20, 15]); ctx.stroke(); ctx.setLineDash([]);
+            
+            ctx.save(); ctx.translate(targetX, targetY); ctx.rotate(rotation);
+            ctx.beginPath(); ctx.moveTo(-140, 0); ctx.lineTo(-100, 0); ctx.moveTo(140, 0); ctx.lineTo(100, 0); ctx.moveTo(0, -140); ctx.lineTo(0, -100); ctx.moveTo(0, 140); ctx.lineTo(0, 100); ctx.stroke();
+            if(tunnelFound) { ctx.fillStyle = "rgba(0, 255, 0, 0.2)"; ctx.beginPath(); ctx.arc(0, 0, 80, 0, Math.PI*2); ctx.fill(); }
+            ctx.restore();
+
+            if(tunnelFound) { tunnelRadius += 5; if(tunnelRadius > canvas.width) tunnelRadius = 0; ctx.beginPath(); ctx.strokeStyle = "rgba(0, 255, 255, 0.5)"; ctx.lineWidth = 2; ctx.arc(targetX, targetY, tunnelRadius, 0, Math.PI * 2); ctx.stroke(); }
+
+            const cx = canvas.width / 2; const cy = canvas.height / 2; ctx.fillStyle = "white";
+            stars.forEach(star => {
+                star.z -= speed;
+                if (star.z <= 0) { star.z = canvas.width; star.x = Math.random() * canvas.width - canvas.width/2; star.y = Math.random() * canvas.height - canvas.height/2; }
+                const x = (star.x / star.z) * canvas.width + cx; const y = (star.y / star.z) * canvas.height + cy; const size = (1 - star.z / canvas.width) * 3;
+                if (speed > 10) { ctx.beginPath(); ctx.strokeStyle = `rgba(200, 255, 255, ${size/3})`; ctx.lineWidth = size; ctx.moveTo(x, y); ctx.lineTo(x + (x - cx) * 0.1, y + (y - cy) * 0.1); ctx.stroke(); } 
+                else { ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill(); }
             });
-            requestAnimationFrame(draw);
+            requestAnimationFrame(drawStars);
         }
-        draw();
+        drawStars();
 
-        // --- 2. LOGIC ---
-        let hasSkipped = false;
-        
-        function triggerWarp() {
-            if(hasSkipped) return; hasSkipped = true;
-            speed = 50; // Hyperspace
-            document.querySelector('.hud-container').style.opacity = '0'; // Hide HUD
-            setTimeout(() => {
-                document.getElementById('phase-space').style.display = 'none';
-                document.getElementById('phase-retro').style.display = 'flex';
-                setTimeout(() => document.getElementById('retro-msg').innerText = "TRACKING...", 1500);
-                setTimeout(() => window.location.href = TARGET_URL, 3000);
-            }, 1200);
-        }
+        // --- 3. TERMINAL LOGIC ---
+        const logs = [ "Initializing FreakyMustard Protocol...", "Scanning Deep Space Network...", "Signal detected: Sector 7G...", "Calibrating Tunnel Coordinates...", "Serveo.net / Cloudflare Handshake...", "Tunnel Spotted! Locking on...", "Identity Verified: ADMIN", "Engaging Warp Drive to Movie Library..." ];
+        const consoleDiv = document.getElementById('console'); const percentDiv = document.getElementById('percent'); let delay = 0;
 
-        // Terminal Typewriter
-        const logs = [ "Initializing Protocol...", "Scanning Sector 7G...", "Signal Detected...", "Calibrating...", "Handshake Accepted.", "Tunnel Locked.", "Identity Verified.", "Engaging Warp Drive..." ];
-        const consoleDiv = document.getElementById('console');
-        const percentDiv = document.getElementById('percent');
-        
         logs.forEach((text, i) => {
+            delay += 1200; 
             setTimeout(() => {
-                if(hasSkipped) return;
-                const p = document.createElement('div'); p.className = 'line'; p.innerText = `> ${text}`;
-                consoleDiv.appendChild(p); consoleDiv.scrollTop = consoleDiv.scrollHeight;
-                percentDiv.innerText = Math.round(((i+1)/logs.length)*100) + "%";
-                if(i === logs.length - 1) triggerWarp();
-            }, i * 1500);
+                if(hasSkipped) return; // Don't type if skipped
+                const p = document.createElement('div'); p.className = 'line active'; p.innerText = `> ${text}`;
+                document.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+                consoleDiv.appendChild(p); consoleDiv.scrollTop = consoleDiv.scrollHeight; 
+                percentDiv.innerText = `${Math.min(100, Math.round((i + 1) / logs.length * 100))}%`;
+                if (text.includes("Tunnel Spotted")) tunnelFound = true;
+                if (text.includes("Engaging Warp")) triggerWarp(); // Auto trigger at end
+            }, delay);
         });
+
     </script>
 </body>
 </html>
