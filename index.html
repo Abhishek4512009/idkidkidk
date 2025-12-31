@@ -1,9 +1,257 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="refresh" content="0; url=https://river-graph-supplies-goes.trycloudflare.com" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreakyMustard Uplink</title>
+    <style>
+        /* --- GLOBAL SETUP --- */
+        body { 
+            margin: 0; overflow: hidden; background: #000; 
+            font-family: 'Courier New', Courier, monospace; 
+            height: 100vh; width: 100vw;
+        }
+
+        /* ================= PHASE 1: SPACE HUD STYLES ================= */
+        #phase-space {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: flex-start;
+            padding-left: 5vw; box-sizing: border-box;
+            transition: opacity 1s;
+        }
+        
+        canvas { position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .hud-container {
+            position: relative; z-index: 10; width: 450px;
+            background: rgba(10, 10, 12, 0.95);
+            border-left: 4px solid #00ffff; border-right: 1px solid #333; border-top: 1px solid #333; border-bottom: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.1);
+            border-radius: 0 25px 25px 0; padding: 35px;
+            text-align: left; opacity: 0; transform: translateX(-50px);
+            animation: slideIn 0.8s forwards ease-out;
+        }
+
+        .profile-header { border-bottom: 1px dashed #00ffff; padding-bottom: 25px; margin-bottom: 25px; display: flex; align-items: center; gap: 25px; }
+        .avatar-img { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; border: 2px solid #fff; box-shadow: 0 0 20px rgba(229, 9, 20, 0.8); }
+        h1 { margin: 0; color: #fff; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; font-family: sans-serif; font-weight: 800; }
+        .role { color: #00ffff; font-size: 0.8rem; letter-spacing: 3px; margin-top: 8px; font-weight: bold; }
+
+        .social-grid { display: flex; gap: 15px; margin-top: 15px; }
+        .social-link {
+            position: relative; text-decoration: none; color: #00ffff; font-size: 0.75rem; padding: 12px 25px;
+            background: rgba(0, 20, 20, 0.6); border: 1px solid #00ffff; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: all 0.3s ease; overflow: hidden; flex: 1; text-align: center;
+        }
+        .social-link::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); transition: 0.5s; }
+        .social-link:hover::before { left: 100%; }
+        .insta:hover { background: #E1306C; color: white; border-color: #E1306C; box-shadow: 0 0 20px #E1306C; }
+        .reddit:hover { background: #FF4500; color: white; border-color: #FF4500; box-shadow: 0 0 20px #FF4500; }
+
+        .status-header { display: flex; justify-content: space-between; font-size: 0.7rem; color: #00ffff; margin-bottom: 8px; letter-spacing: 2px; font-weight: bold; }
+        .terminal-window { background: #000; border: 1px solid #222; height: 220px; padding: 15px; text-align: left; font-size: 0.9rem; overflow-y: auto; margin-bottom: 25px; color: #0f0; text-shadow: 0 0 3px rgba(0, 255, 0, 0.6); font-family: 'Courier New', monospace; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .line { margin-bottom: 8px; padding-left: 10px; border-left: 2px solid transparent; opacity: 0; animation: fadeIn 0.3s forwards; }
+        .line.active { border-left: 2px solid #0f0; background: rgba(0, 255, 0, 0.1); }
+        
+        .status-bar { width: 100%; height: 6px; background: #111; overflow: hidden; border-radius: 3px; }
+        .progress { height: 100%; width: 0%; background: #00ffff; box-shadow: 0 0 15px #00ffff; animation: load 12s linear forwards; }
+
+        /* --- THE NEW SKIP BUTTON --- */
+        .skip-container {
+            position: absolute; bottom: 40px; right: 60px; z-index: 20;
+        }
+        .warp-btn {
+            background: transparent; color: #00ffff; font-family: sans-serif;
+            font-size: 1.2rem; font-weight: 800; letter-spacing: 3px;
+            padding: 15px 40px; border: 2px solid #00ffff;
+            text-transform: uppercase; cursor: pointer;
+            position: relative; overflow: hidden; transition: 0.3s;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            animation: pulseBtn 2s infinite;
+        }
+        .warp-btn:hover { background: #00ffff; color: #000; box-shadow: 0 0 40px #00ffff; transform: scale(1.05); }
+        
+        /* ================= PHASE 2: RETRO TV STYLES ================= */
+        #phase-retro {
+            display: none; /* Hidden at start */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0000aa; /* Blue Screen */
+            color: white; z-index: 100;
+            flex-direction: column; align-items: center; justify-content: center;
+            font-size: 4rem; font-weight: bold; text-shadow: 4px 4px #000;
+            text-transform: uppercase;
+        }
+        
+        /* CRT OVERLAYS */
+        .crt-scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%; pointer-events: none; z-index: 101;
+        }
+        .crt-vignette {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none; z-index: 102;
+        }
+
+        .retro-text { animation: blink 1s infinite; }
+        .channel-id { position: absolute; top: 50px; left: 60px; font-size: 2rem; }
+
+        /* ================= ANIMATIONS ================= */
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes load { to { width: 100%; } }
+        @keyframes pulseBtn { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    </style>
 </head>
 <body>
-    <p>Redirecting to Movie Night...</p>
+
+    <div id="phase-space">
+        <canvas id="space"></canvas>
+
+        <div class="hud-container">
+            <div class="profile-header">
+                <img src="logo.png" class="avatar-img" alt="Icon">
+                <div>
+                    <h1>FreakyMustard</h1>
+                    <div class="role">SECURE MOVIE UPLINK V4.2</div>
+                </div>
+            </div>
+
+            <div class="social-grid">
+                <a href="https://www.instagram.com/freakymustard67?igsh=OGh2eHliM3Zwamlm" target="_blank" class="social-link insta">Instagram</a>
+                <a href="https://www.reddit.com/u/Outrageous_Cat7599/s/kTwo5zzOeW" target="_blank" class="social-link reddit">Reddit</a>
+            </div>
+
+            <br>
+            <div class="status-header"><span>SYSTEM LOG</span><span id="percent">0%</span></div>
+            <div class="terminal-window" id="console"></div>
+            <div class="status-header"><span>TUNNEL INTEGRITY</span></div>
+            <div class="status-bar"><div class="progress"></div></div>
+        </div>
+
+        <div class="skip-container">
+            <button class="warp-btn" onclick="triggerWarp()">
+                ⚡ WARP JUMP
+            </button>
+        </div>
+    </div>
+
+    <div id="phase-retro">
+        <div class="crt-scanlines"></div>
+        <div class="crt-vignette"></div>
+        <div class="channel-id">AV-1</div>
+        <div class="retro-text" id="retro-msg">▶ PLAY</div>
+    </div>
+
+    <script>
+        /* ================= CONFIGURATION ================= */
+        const TARGET_URL = "https://river-graph-supplies-goes.trycloudflare.com"; 
+        /* ================================================= */
+
+        let hasSkipped = false;
+        let speed = 0.5;
+
+        // --- 1. TRANSITION LOGIC (The "Magic" Part) ---
+        function triggerWarp() {
+            if(hasSkipped) return;
+            hasSkipped = true;
+
+            // Speed up stars instantly
+            speed = 80;
+
+            // Fade out Space Phase
+            document.getElementById('phase-space').style.opacity = '0';
+
+            // Wait 1s for fade, then switch to Retro Phase
+            setTimeout(() => {
+                document.getElementById('phase-space').style.display = 'none';
+                document.getElementById('phase-retro').style.display = 'flex';
+                
+                // Play Retro sequence
+                runRetroSequence();
+            }, 1000);
+        }
+
+        function runRetroSequence() {
+            const msg = document.getElementById('retro-msg');
+            
+            // 1. Show PLAY
+            setTimeout(() => { msg.innerText = "TRACKING..."; }, 1500);
+            
+            // 2. Redirect
+            setTimeout(() => { 
+                window.location.href = TARGET_URL; 
+            }, 3000);
+        }
+
+        // --- 2. CANVAS LOGIC ---
+        const canvas = document.getElementById("space");
+        const ctx = canvas.getContext("2d");
+        
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        let stars = [];
+        let tunnelFound = false;
+        let tunnelRadius = 0;
+        let rotation = 0;
+        let targetX = canvas.width * 0.75; let targetY = canvas.height / 2; let driftTime = 0;
+
+        for (let i = 0; i < 1000; i++) {
+            stars.push({ x: Math.random() * canvas.width - canvas.width/2, y: Math.random() * canvas.height - canvas.height/2, z: Math.random() * canvas.width });
+        }
+
+        function drawStars() {
+            ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width * 0.75; const centerY = canvas.height / 2;
+            
+            if (!tunnelFound) { driftTime += 0.02; targetX = centerX + Math.sin(driftTime) * 150; targetY = centerY + Math.cos(driftTime * 1.5) * 100; } 
+            else { targetX += (centerX - targetX) * 0.1; targetY += (centerY - targetY) * 0.1; }
+
+            rotation += 0.02; ctx.strokeStyle = tunnelFound ? "#00ff00" : "#ff0044"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(targetX, targetY, 120, 0, Math.PI * 2); ctx.setLineDash([20, 15]); ctx.stroke(); ctx.setLineDash([]);
+            
+            ctx.save(); ctx.translate(targetX, targetY); ctx.rotate(rotation);
+            ctx.beginPath(); ctx.moveTo(-140, 0); ctx.lineTo(-100, 0); ctx.moveTo(140, 0); ctx.lineTo(100, 0); ctx.moveTo(0, -140); ctx.lineTo(0, -100); ctx.moveTo(0, 140); ctx.lineTo(0, 100); ctx.stroke();
+            if(tunnelFound) { ctx.fillStyle = "rgba(0, 255, 0, 0.2)"; ctx.beginPath(); ctx.arc(0, 0, 80, 0, Math.PI*2); ctx.fill(); }
+            ctx.restore();
+
+            if(tunnelFound) { tunnelRadius += 5; if(tunnelRadius > canvas.width) tunnelRadius = 0; ctx.beginPath(); ctx.strokeStyle = "rgba(0, 255, 255, 0.5)"; ctx.lineWidth = 2; ctx.arc(targetX, targetY, tunnelRadius, 0, Math.PI * 2); ctx.stroke(); }
+
+            const cx = canvas.width / 2; const cy = canvas.height / 2; ctx.fillStyle = "white";
+            stars.forEach(star => {
+                star.z -= speed;
+                if (star.z <= 0) { star.z = canvas.width; star.x = Math.random() * canvas.width - canvas.width/2; star.y = Math.random() * canvas.height - canvas.height/2; }
+                const x = (star.x / star.z) * canvas.width + cx; const y = (star.y / star.z) * canvas.height + cy; const size = (1 - star.z / canvas.width) * 3;
+                if (speed > 10) { ctx.beginPath(); ctx.strokeStyle = `rgba(200, 255, 255, ${size/3})`; ctx.lineWidth = size; ctx.moveTo(x, y); ctx.lineTo(x + (x - cx) * 0.1, y + (y - cy) * 0.1); ctx.stroke(); } 
+                else { ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI * 2); ctx.fill(); }
+            });
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
+
+        // --- 3. TERMINAL LOGIC ---
+        const logs = [ "Initializing FreakyMustard Protocol...", "Scanning Deep Space Network...", "Signal detected: Sector 7G...", "Calibrating Tunnel Coordinates...", "Serveo.net / Cloudflare Handshake...", "Tunnel Spotted! Locking on...", "Identity Verified: ADMIN", "Engaging Warp Drive to Movie Library..." ];
+        const consoleDiv = document.getElementById('console'); const percentDiv = document.getElementById('percent'); let delay = 0;
+
+        logs.forEach((text, i) => {
+            delay += 1200; 
+            setTimeout(() => {
+                if(hasSkipped) return; // Don't type if skipped
+                const p = document.createElement('div'); p.className = 'line active'; p.innerText = `> ${text}`;
+                document.querySelectorAll('.line').forEach(l => l.classList.remove('active'));
+                consoleDiv.appendChild(p); consoleDiv.scrollTop = consoleDiv.scrollHeight; 
+                percentDiv.innerText = `${Math.min(100, Math.round((i + 1) / logs.length * 100))}%`;
+                if (text.includes("Tunnel Spotted")) tunnelFound = true;
+                if (text.includes("Engaging Warp")) triggerWarp(); // Auto trigger at end
+            }, delay);
+        });
+
+    </script>
 </body>
 </html>
