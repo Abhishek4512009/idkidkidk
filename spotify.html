@@ -9,30 +9,33 @@
         body { background-color: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 20px; }
         h1 { margin-bottom: 20px; }
         
-        /* Player Container */
-        .player-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: #282828; padding: 15px; display: flex;
-            align-items: center; justify-content: space-between;
-            border-top: 1px solid #333;
-        }
+        /* Input Area */
+        .search-container { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+        input { padding: 12px; width: 100%; max-width: 300px; background: #333; border: none; color: white; border-radius: 4px; }
+        button { padding: 12px 24px; background: var(--green); color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        #status { margin-top: 10px; color: #aaa; font-size: 0.9em; }
+
+        /* Player & List */
+        .player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #282828; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #333; z-index: 100; }
         audio { width: 100%; max-width: 600px; }
-        
-        /* Song List */
         .track-list { display: grid; gap: 10px; padding-bottom: 100px; }
-        .track {
-            background: var(--card); padding: 15px; border-radius: 5px;
-            cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between;
-        }
+        .track { background: var(--card); padding: 15px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
         .track:hover { background: #282828; }
         .track-name { font-weight: bold; }
-        .now-playing { color: var(--green); }
     </style>
 </head>
 <body>
 
+    <div class="search-container">
+        <input type="text" id="songInput" placeholder="Enter song name (e.g. Blinding Lights)">
+        <button onclick="downloadSong()" id="dlBtn">Add Song</button>
+    </div>
+    <div id="status"></div>
+
     <h1>Your Library</h1>
-    <div id="loading">Loading tracks from Drive...</div>
+    <div id="loading">Loading tracks...</div>
     <div class="track-list" id="trackList"></div>
 
     <div class="player-bar">
@@ -41,41 +44,70 @@
     </div>
 
     <script>
-        // REPLACE THIS WITH YOUR RENDER BACKEND URL
+        // 🔴 CHANGE THIS TO YOUR RENDER URL (No trailing slash)
         const API_URL = 'https://mystream-sh78.onrender.com'; 
 
         const trackListEl = document.getElementById('trackList');
         const audioPlayer = document.getElementById('audioPlayer');
         const currentSongLabel = document.getElementById('currentSong');
-        const loadingEl = document.getElementById('loading');
+        const statusEl = document.getElementById('status');
+        const dlBtn = document.getElementById('dlBtn');
 
+        // 1. Fetch List
         async function fetchTracks() {
             try {
                 const res = await fetch(`${API_URL}/api/tracks`);
                 const tracks = await res.json();
-                loadingEl.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
+                trackListEl.innerHTML = ''; // Clear list to prevent duplicates
                 
                 tracks.forEach(track => {
                     const div = document.createElement('div');
                     div.className = 'track';
-                    div.innerHTML = `<span class="track-name">${track.name}</span>`;
+                    div.innerHTML = `<span class="track-name">${track.name.replace('.mp3', '')}</span>`;
                     div.onclick = () => playTrack(track);
                     trackListEl.appendChild(div);
                 });
             } catch (err) {
-                loadingEl.innerText = "Error loading tracks. Is server running?";
+                document.getElementById('loading').innerText = "Error loading tracks.";
             }
         }
 
+        // 2. Play Track
         function playTrack(track) {
-            // Update UI
-            currentSongLabel.innerText = track.name;
-            document.querySelectorAll('.track').forEach(t => t.classList.remove('now-playing'));
-            
-            // Set Audio Source
-            // We append the access token logic in backend, here we just call the stream URL
+            currentSongLabel.innerText = track.name.replace('.mp3', '');
             audioPlayer.src = `${API_URL}/api/stream/${track.id}`;
             audioPlayer.play();
+        }
+
+        // 3. Download Logic
+        async function downloadSong() {
+            const songName = document.getElementById('songInput').value;
+            if (!songName) return;
+
+            statusEl.innerText = `🔎 Searching for "${songName}"...`;
+            dlBtn.disabled = true;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/download`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ songName })
+                });
+
+                if (res.ok) {
+                    statusEl.innerText = "✅ Downloaded! Refreshing list...";
+                    document.getElementById('songInput').value = "";
+                    await fetchTracks();
+                    statusEl.innerText = "Ready.";
+                } else {
+                    const err = await res.text();
+                    statusEl.innerText = `❌ Error: ${err}`;
+                }
+            } catch (error) {
+                statusEl.innerText = "❌ Network Error";
+            }
+            dlBtn.disabled = false;
         }
 
         fetchTracks();
