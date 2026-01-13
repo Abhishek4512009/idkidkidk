@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Demo</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 { margin-top: 0; color: #1f2937; }
+        p { color: #4b5563; line-height: 1.6; }
+
+        @media (max-width: 640px) {
+            header { padding: 1.5rem; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Responsive Test Page</h1>
+        <p>Created via Antigravity GitHub MCP</p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Feature 1</h2>
+            <p>This card will resize automatically based on the screen width.</p>
+        </div>
+        <div class="card">
+            <h2>Feature 2</h2>
+            <p>Try resizing your browser window to see the responsive grid in action.</p>
+        </div>
+        <div class="card">
+            <h2>Feature 3</h2>
+            <p>Modern CSS Grid makes building responsive layouts simpler and more robust.</p>
+        </div>
+    </div>
+</body>
+</html>
