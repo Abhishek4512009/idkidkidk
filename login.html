@@ -284,13 +284,6 @@
                 <label class="input-label" for="password">Password</label>
             </div>
 
-            <!-- Folder ID (Hidden by default) -->
-            <div class="input-group" id="folderGroup" style="display: none;">
-                <input type="text" id="folderId" placeholder=" ">
-                <span class="input-icon">&#128193;</span>
-                <label class="input-label" for="folderId">Drive Folder ID</label>
-            </div>
-
             <button type="submit" id="submitBtn">Sign In</button>
 
             <div class="footer-links">
@@ -317,24 +310,17 @@
             const btn = document.getElementById('submitBtn');
             const toggleText = document.getElementById('toggleText');
             const toggleLink = document.getElementById('toggleLink');
-            const folderGroup = document.getElementById('folderGroup');
-            const folderInput = document.getElementById('folderId');
 
             if (isRegistering) {
                 title.innerText = "Create an account to start streaming.";
                 btn.innerText = "Sign Up";
                 toggleText.innerText = "Already have an account?";
                 toggleLink.innerText = "Sign In";
-                folderGroup.style.display = 'block';
-                folderInput.required = true;
-                // Animate height/opacity via CSS class if desired, simple display for now
             } else {
                 title.innerText = "Welcome back! Please sign in to continue.";
                 btn.innerText = "Sign In";
                 toggleText.innerText = "Don't have an account?";
                 toggleLink.innerText = "Sign Up";
-                folderGroup.style.display = 'none';
-                folderInput.required = false;
             }
         }
 
@@ -345,7 +331,6 @@
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const folderId = document.getElementById('folderId').value;
 
             // Loading State
             btn.innerHTML = `<span class="spinner"></span> Processing...`;
@@ -353,9 +338,7 @@
             btn.disabled = true;
 
             const endpoint = isRegistering ? '/api/register' : '/api/login';
-            const payload = isRegistering
-                ? { username, password, folderId }
-                : { username, password };
+            const payload = { username, password }; // Reduced payload
 
             try {
                 const res = await fetch(`${API_URL}${endpoint}`, {

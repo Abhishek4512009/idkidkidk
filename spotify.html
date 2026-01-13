@@ -609,10 +609,11 @@
             dlBtn.disabled = true;
 
             try {
+                const folderId = localStorage.getItem('folderId'); // Get user's specific folder
                 const res = await fetch(`${API_URL}/api/download`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ songName })
+                    body: JSON.stringify({ songName, folderId })
                 });
 
                 if (res.ok) {
