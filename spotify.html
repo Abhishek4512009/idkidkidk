@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Drive Streamer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -533,7 +534,11 @@
     </nav>
 
     <script>
-        // 🔴 CHANGE THIS TO YOUR RENDER URL (No trailing slash)
+        // Check Auth immediately
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'login.html';
+        }
+
         const API_URL = 'https://mystream-sh78.onrender.com';
 
         const trackListEl = document.getElementById('trackList');
@@ -542,10 +547,22 @@
         const statusEl = document.getElementById('status');
         const dlBtn = document.getElementById('dlBtn');
 
+        // Optional: Logout function
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
         // 1. Fetch List
         async function fetchTracks() {
             try {
-                const res = await fetch(`${API_URL}/api/tracks`);
+                // Get folderId from storage (set during login)
+                const userFolderId = localStorage.getItem('folderId');
+                // Append as query param
+                const res = await fetch(`${API_URL}/api/tracks?folderId=${userFolderId}`);
+
+                if (!res.ok) throw new Error("Failed to load tracks");
+
                 const tracks = await res.json();
                 document.getElementById('loading').style.display = 'none';
                 trackListEl.innerHTML = '';
@@ -569,10 +586,12 @@
                     trackListEl.appendChild(row);
                 });
             } catch (err) {
-                document.getElementById('loading').innerText = "Error loading tracks.";
+                document.getElementById('loading').innerText = "Error loading tracks (or Invalid Folder).";
                 console.error(err);
             }
         }
+
+        // ... rest of code ...
 
         // 2. Play Track
         function playTrack(track) {

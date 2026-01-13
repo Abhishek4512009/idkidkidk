@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Login - Drive Streamer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1db954;
+            --primary-hover: #1ed760;
+            --bg-dark: #121212;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #b3b3b3;
+            --error: #ff4d4d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle at center, rgba(29, 185, 84, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at top left, rgba(29, 185, 84, 0.1) 0%, transparent 40%);
+            animation: rotateBG 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotateBG {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Login Card */
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 48px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Shine Effect */
+        .login-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+            transition: 0.5s;
+        }
+
+        .login-card:hover::after {
+            left: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+
+        /* Form Groups */
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            /* Space for icon */
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(29, 185, 84, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus+.input-icon {
+            color: var(--primary);
+        }
+
+        .input-label {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: 0.3s ease;
+            font-size: 1rem;
+        }
+
+        /* Float Label Logic */
+        .input-group input:focus~.input-label,
+        .input-group input:not(:placeholder-shown)~.input-label {
+            top: -10px;
+            left: 10px;
+            font-size: 0.75rem;
+            color: var(--primary);
+            background: var(--bg-dark);
+            padding: 0 6px;
+            border-radius: 4px;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: #000;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(29, 185, 84, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Footer Links */
+        .footer-links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+            transition: 0.2s;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+            color: var(--primary-hover);
+        }
+
+        /* Success/Error States (for interactivity) */
+        .input-group.error input {
+            border-color: var(--error);
+        }
+
+        .input-group.error .input-icon,
+        .input-group.error .input-label {
+            color: var(--error);
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 480px) {
+            .login-card {
+                height: 100%;
+                max-width: 100%;
+                border-radius: 0;
+                border: none;
+                background: transparent;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 32px;
+            }
+
+            body::before {
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle at center, rgba(29, 185, 84, 0.1) 0%, transparent 60%);
+            }
+
+            .logo {
+                font-size: 2.5rem;
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <div class="logo">
+            <span>&#9835;</span> Streamer
+        </div>
+        <p class="subtitle" id="subtitle">Welcome back! Please sign in to continue.</p>
+
+        <form id="authForm" onsubmit="handleAuth(event)">
+            <!-- Username -->
+            <div class="input-group">
+                <input type="text" id="username" placeholder=" " required>
+                <span class="input-icon">&#128100;</span>
+                <label class="input-label" for="username">Username</label>
+            </div>
+
+            <!-- Password -->
+            <div class="input-group">
+                <input type="password" id="password" placeholder=" " required>
+                <span class="input-icon">&#128274;</span>
+                <label class="input-label" for="password">Password</label>
+            </div>
+
+            <!-- Folder ID (Hidden by default) -->
+            <div class="input-group" id="folderGroup" style="display: none;">
+                <input type="text" id="folderId" placeholder=" ">
+                <span class="input-icon">&#128193;</span>
+                <label class="input-label" for="folderId">Drive Folder ID</label>
+            </div>
+
+            <button type="submit" id="submitBtn">Sign In</button>
+
+            <div class="footer-links">
+                <span id="toggleText">Don't have an account?</span>
+                <a href="#" onclick="toggleMode(event)" id="toggleLink">Sign Up</a>
+            </div>
+            <div class="footer-links" style="margin-top: 10px; font-size: 0.8rem;">
+                <a href="#" style="color: var(--text-muted); font-weight: 400;">Forgot Password?</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 🔴 CHANGE THIS TO YOUR RENDER URL (No trailing slash)
+        const API_URL = 'https://mystream-sh78.onrender.com';
+
+        let isRegistering = false;
+
+        function toggleMode(e) {
+            e.preventDefault();
+            isRegistering = !isRegistering;
+
+            const title = document.getElementById('subtitle');
+            const btn = document.getElementById('submitBtn');
+            const toggleText = document.getElementById('toggleText');
+            const toggleLink = document.getElementById('toggleLink');
+            const folderGroup = document.getElementById('folderGroup');
+            const folderInput = document.getElementById('folderId');
+
+            if (isRegistering) {
+                title.innerText = "Create an account to start streaming.";
+                btn.innerText = "Sign Up";
+                toggleText.innerText = "Already have an account?";
+                toggleLink.innerText = "Sign In";
+                folderGroup.style.display = 'block';
+                folderInput.required = true;
+                // Animate height/opacity via CSS class if desired, simple display for now
+            } else {
+                title.innerText = "Welcome back! Please sign in to continue.";
+                btn.innerText = "Sign In";
+                toggleText.innerText = "Don't have an account?";
+                toggleLink.innerText = "Sign Up";
+                folderGroup.style.display = 'none';
+                folderInput.required = false;
+            }
+        }
+
+        async function handleAuth(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText;
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const folderId = document.getElementById('folderId').value;
+
+            // Loading State
+            btn.innerHTML = `<span class="spinner"></span> Processing...`;
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+
+            const endpoint = isRegistering ? '/api/register' : '/api/login';
+            const payload = isRegistering
+                ? { username, password, folderId }
+                : { username, password };
+
+            try {
+                const res = await fetch(`${API_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Success! Save data and redirect
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('folderId', data.folderId);
+                    localStorage.setItem('isLoggedIn', 'true');
+
+                    btn.innerText = "Success! Redirecting...";
+                    setTimeout(() => {
+                        window.location.href = 'spotify.html';
+                    }, 1000);
+                } else {
+                    alert("Error: " + (data.error || "Unknown error"));
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network Error: Check console");
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
