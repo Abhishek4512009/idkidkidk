@@ -422,7 +422,7 @@
                 flex: 1;
                 width: 100%;
                 overflow-y: auto;
-                padding: 20px;
+                padding: 16px; /* Reduced padding */
                 padding-bottom: 20px;
             }
 
@@ -430,15 +430,18 @@
                 flex-direction: column;
                 gap: 15px;
                 align-items: stretch;
+                margin-bottom: 20px;
             }
 
             .search-bar { width: 100%; max-width: 100%; }
 
+            /* Grid Fix: 30px number | Title | 40px Action */
             .track-row {
-                grid-template-columns: 40px 1fr 40px; /* Adjusted columns */
-                gap: 10px;
+                grid-template-columns: 30px 1fr 40px; 
+                gap: 8px;
+                padding: 10px;
             }
-            /*.track-row div:nth-child(3) { display: none; } /* Hide Size */
+            .track-row div:nth-child(3) { display: none; } /* Hide Size Column specifically */
 
             /* Stacked Player Bar */
             .player-bar {
@@ -446,20 +449,45 @@
                 position: relative;
                 width: 100%;
                 height: auto;
-                min-height: 80px;
+                min-height: 90px; /* Slightly taller for controls */
                 background: #181818;
                 border-top: 1px solid #282828;
                 margin: 0;
-                padding: 10px 20px;
+                padding: 10px 16px;
                 flex-shrink: 0;
+                flex-direction: column; /* Stack controls below info */
+                gap: 10px;
+                align-items: stretch;
             }
 
-            .now-playing { width: 60%; gap: 10px; }
-            .cover-art { width: 40px; height: 40px; font-size: 18px; }
-            .player-controls { width: 40%; align-items: flex-end; }
-            .control-buttons { display: none; } /* Hide extra controls on mobile for simplicity, or keep if room */
+            .now-playing { 
+                width: 100%; 
+                gap: 12px;
+                margin-bottom: 0;
+            }
             
-            audio { height: 30px; width: 100%; max-width: 120px; }
+            .cover-art { width: 42px; height: 42px; font-size: 18px; }
+
+            /* Player Controls on Mobile */
+            .player-controls { 
+                width: 100%; 
+                align-items: center;
+                flex-direction: row; /* Horizontal on mobile line 2 */
+                justify-content: space-between;
+                gap: 10px;
+            }
+            
+            .control-buttons { 
+                display: flex; /* SHOW controls */
+                gap: 15px;
+            }
+            
+            audio { 
+                height: 32px; 
+                flex: 1; 
+                width: auto; 
+                max-width: none; 
+            }
 
             .quality-label { display: none; }
 
