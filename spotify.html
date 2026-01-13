@@ -321,24 +321,25 @@
         /* --- TOUCH DEVICES (Mobile & Tablet) --- */
         @media (max-width: 1024px) {
             body {
-                display: block;
-                /* Remove grid */
-                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                height: 100vh; /* Fallback */
+                height: 100dvh;
                 overflow: hidden;
                 position: relative;
             }
 
             .sidebar {
                 display: none;
-                /* Hide sidebar */
             }
 
             .main-content {
-                height: 100%;
-                padding: 20px;
-                padding-bottom: 160px;
-                /* Space for fixed player + nav */
+                flex: 1;
                 width: 100%;
+                overflow-y: auto;
+                padding: 20px;
+                padding-bottom: 20px; /* Standard padding */
+                background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(18, 18, 18, 1) 100%);
             }
 
             .header {
@@ -360,63 +361,25 @@
 
             .track-row {
                 grid-template-columns: 40px 1fr;
-                /* Hide size column or simplify */
                 gap: 10px;
             }
 
-            /* Hide the file size specifically if it gets too crowded, or keep it. 
-               Let's hide the 3rd column (Size) for cleaner look on small phones */
             .track-row div:last-child {
                 display: none;
             }
 
-            .track-row {
-                grid-template-columns: 40px 1fr;
-            }
-
-            /* Bottom Nav */
-            .bottom-nav {
-                display: flex;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: var(--nav-height);
-                background: #121212;
-                border-top: 1px solid #333;
-                justify-content: space-around;
-                align-items: center;
-                z-index: 200;
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-
-            .bottom-nav .nav-item {
-                flex-direction: column;
-                gap: 4px;
-                font-size: 10px;
-                color: #b3b3b3;
-            }
-
-            .bottom-nav .nav-item.active {
-                color: white;
-            }
-
-            .bottom-nav .nav-item span:first-child {
-                font-size: 20px;
-            }
-
-            /* Fixed Player Bar above Nav */
+            /* Stacked Player Bar */
             .player-bar {
-                position: fixed;
-                bottom: var(--nav-height);
-                left: 0;
+                grid-area: auto; /* Reset grid area */
+                position: relative;
                 width: 100%;
-                height: 80px;
-                padding: 10px;
+                height: auto;
+                min-height: 80px;
+                background: #181818;
                 border-top: 1px solid #282828;
-                background: rgba(24, 24, 24, 0.95);
-                backdrop-filter: blur(10px);
-                margin-bottom: env(safe-area-inset-bottom);
+                margin: 0;
+                padding: 10px 20px;
+                flex-shrink: 0;
             }
 
             .now-playing {
@@ -433,22 +396,53 @@
             .player-controls {
                 width: 40%;
                 align-items: flex-end;
-                /* Push controls right */
             }
 
-            /* Hide full audio controls and simpler play button? 
-               For now standard audio controls are tricky to style small.
-               Let's keep it but make it smaller or rely on the native player's responsiveness.
-            */
             audio {
                 height: 30px;
                 width: 100%;
                 max-width: 120px;
-                /* Constrain width */
             }
 
             .quality-label {
                 display: none;
+            }
+
+            /* Stacked Bottom Nav */
+            .bottom-nav {
+                display: flex;
+                position: relative;
+                width: 100%;
+                height: auto;
+                min-height: var(--nav-height);
+                background: #121212;
+                border-top: 1px solid #333;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 200;
+                flex-shrink: 0;
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-top: 5px; /* Visual balance */
+            }
+
+            .bottom-nav .nav-item {
+                flex-direction: column;
+                gap: 4px;
+                font-size: 10px;
+                color: #b3b3b3;
+                padding: 10px 0;
+                flex: 1; /* Touch targets */
+                display: flex; /* explicit */
+                align-items: center;
+                justify-content: center;
+            }
+
+            .bottom-nav .nav-item.active {
+                color: white;
+            }
+
+            .bottom-nav .nav-item span:first-child {
+                font-size: 20px;
             }
         }
     </style>
