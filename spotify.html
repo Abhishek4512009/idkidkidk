@@ -607,160 +607,101 @@
 
         /* Bottom Nav (Hidden on Desktop) */
         .bottom-nav {
-            display: none !important;
+            display: none;
         }
 
         /* --- TOUCH DEVICES (Mobile & Tablet) --- */
         /* Changed from 1024px to 768px for Tablet Optimization */
+        /* --- RESPONSIVE (MOBILE & TABLET) --- */
         @media (max-width: 768px) {
-            body {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-                margin: 0;
+            body { 
+                display: block; 
+                overflow: hidden; 
+                position: relative; 
+            }
+            
+            /* Hide Desktop Sidebar */
+            .sidebar { display: none; }
+            
+            /* Adjust Main Content to scroll behind the double bars */
+            .main-content { 
                 height: 100vh;
-                height: 100dvh;
-                overflow: hidden;
-                position: relative;
+                padding: 16px; 
+                padding-bottom: 160px; /* EXTRA SPACE for Player + Nav */
             }
-
-            .sidebar {
-                display: none;
+            
+            /* Mobile Track List Styling */
+            .track-row { 
+                grid-template-columns: 30px 1fr 40px; 
+                gap: 10px; 
+                padding: 12px 8px; 
             }
+            /* Hide unused columns on mobile */
+            .track-row div:nth-child(1), /* Handle (optional to hide) */
+            .track-row div:nth-child(2), /* Number */
+            .track-row div:nth-child(4)  /* Size */ 
+            { display: none; }
+            
+            .track-row { display: flex; align-items: center; justify-content: space-between; }
+            .track-title { font-size: 1rem; max-width: 70%; }
 
-            .main-content {
-                flex: 1;
-                width: 100%;
-                overflow-y: auto;
-                padding: 16px;
-            }
+            /* --- STACKED BARS FIX --- */
 
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                align-items: stretch;
-                margin-bottom: 20px;
-            }
-
-            .search-bar {
-                width: 100%;
-                max-width: 100%;
-            }
-
-            /* Grid Fix: 30px Handle | 30px Number | Title | 40px Action */
-            .track-row {
-                grid-template-columns: 30px 30px 1fr 40px;
-                gap: 8px;
-                padding: 10px;
-            }
-
-            /* Hide Size Column (4th child now) */
-            .track-row div:nth-child(4) {
-                display: none;
-            }
-
-            /* Hide Size Column specifically */
-
-            /* Stacked Player Bar */
+            /* 1. PLAYER BAR: Sits ABOVE the navigation */
             .player-bar {
-                grid-area: auto;
                 position: fixed;
-                bottom: 0px;
+                bottom: 65px; /* Lifts player up */
                 left: 0;
                 width: 100%;
-                height: auto;
-                min-height: 90px;
-                border-radius: 0;
-                /* Slightly taller for controls */
-                background: #181818;
+                height: auto; 
+                min-height: 80px; 
+                padding: 10px 16px; 
+                flex-direction: column; 
+                gap: 5px;
+                background: #181818; 
                 border-top: 1px solid #282828;
-                margin: 0;
-                padding: 10px 16px;
-                flex-shrink: 0;
-                flex-direction: column;
-                /* Stack controls below info */
-                gap: 10px;
-                align-items: stretch;
-                z-index: 1001;
-                box-shadow: none;
-                /* Ensure it's above other elements */
+                border-bottom: 1px solid #282828;
+                z-index: 1900;
             }
 
-            .now-playing {
-                width: 100%;
-                gap: 12px;
-                margin-bottom: 0;
-            }
-
-            .cover-art {
-                width: 42px;
-                height: 42px;
-                font-size: 18px;
-            }
-
-            /* Player Controls on Mobile */
-            .player-controls {
-                width: 100%;
-                align-items: center;
-                flex-direction: row;
-                /* Horizontal on mobile line 2 */
-                justify-content: space-between;
-                gap: 10px;
-            }
-
-            .control-buttons {
-                display: flex;
-                /* SHOW controls */
-                gap: 15px;
-            }
-
-            audio {
-                height: 32px;
-                flex: 1;
-                width: auto;
-                max-width: none;
-            }
-
-            .quality-label {
-                display: none;
-            }
-
-            /* Stacked Bottom Nav */
+            /* Hide advanced player details on mobile to save space */
+            .quality-label { display: none; }
+            .now-playing { width: 100%; margin-bottom: 5px; }
+            .player-controls { width: 100%; }
+            .control-buttons { gap: 20px; justify-content: space-between; width: 100%; }
+            
+            /* 2. BOTTOM NAVIGATION: Sits at the very bottom */
             .bottom-nav {
-                display: flex !important;
-                position: relative;
-                width: 100%;
-                height: auto;
-                min-height: var(--nav-height);
-                background: #121212;
-                border-top: 1px solid #333;
+                display: flex; 
+                position: fixed; 
+                bottom: 0; 
+                left: 0;
+                width: 100%; 
+                height: 65px; /* Standard Touch Height */
+                background: #121212; 
+                border-top: 1px solid #333; 
                 justify-content: space-around;
-                align-items: center;
-                z-index: 200;
-                flex-shrink: 0;
-                padding-bottom: env(safe-area-inset-bottom);
-                padding-top: 5px;
+                align-items: center; 
+                z-index: 2000; /* Highest priority */
+                padding-bottom: env(safe-area-inset-bottom); /* iPhone Home Bar Safe Area */
             }
 
             .bottom-nav .nav-item {
-                flex-direction: column;
-                gap: 4px;
-                font-size: 10px;
-                color: #b3b3b3;
-                padding: 10px 0;
+                flex-direction: column; 
+                gap: 4px; 
+                font-size: 10px; 
+                padding: 0; 
+                color: #b3b3b3; 
+                background: transparent;
                 flex: 1;
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
-
-            .bottom-nav .nav-item.active {
-                color: white;
-            }
-
-            .bottom-nav .nav-item span:first-child {
-                font-size: 20px;
-            }
+            
+            .bottom-nav .nav-item i { font-size: 24px; margin-bottom: 2px; }
+            .bottom-nav .nav-item.active { color: white; }
+            .bottom-nav .nav-item.active i { color: var(--primary-color); }
         }
     </style>
     <style>
@@ -894,16 +835,16 @@
 
     <!-- Bottom Nav for Mobile -->
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchView('home')">
-            <span><i class="ph-fill ph-house"></i></span>
+        <div class="nav-item active" onclick="switchView('home')" id="mobile-nav-home">
+            <i class="ph-fill ph-house"></i>
             <span>Home</span>
         </div>
         <div class="nav-item" onclick="openModal()">
-            <span><i class="ph-bold ph-plus"></i></span>
-            <span>Add</span>
+            <i class="ph-bold ph-plus-circle"></i>
+            <span>Add Song</span>
         </div>
-        <div class="nav-item" onclick="switchView('library')">
-            <span><i class="ph-fill ph-books"></i></span>
+        <div class="nav-item" onclick="switchView('library')" id="mobile-nav-lib">
+            <i class="ph-fill ph-books"></i>
             <span>Library</span>
         </div>
     </nav>
@@ -957,14 +898,24 @@
         }
 
         // --- NAVIGATION ---
+        // --- NAVIGATION ---
         function switchView(view) {
             currentView = view;
             document.getElementById('loading').style.display = 'block';
             trackListEl.innerHTML = '';
 
+            // Desktop Highlight
             document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
             if (view === 'home') document.getElementById('nav-home').classList.add('active');
             if (view === 'library') document.getElementById('nav-lib').classList.add('active');
+
+            // --- ADD THIS: Mobile Highlight ---
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.remove('active'));
+            if (view === 'home' && document.getElementById('mobile-nav-home')) 
+                document.getElementById('mobile-nav-home').classList.add('active');
+            if (view === 'library' && document.getElementById('mobile-nav-lib')) 
+                document.getElementById('mobile-nav-lib').classList.add('active');
+            // ----------------------------------
 
             // Update Sortable State
             if (sortableInstance) {
