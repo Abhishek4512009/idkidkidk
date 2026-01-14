@@ -1208,55 +1208,82 @@
         audioPlayer.onplay = () => playPauseBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
         audioPlayer.onpause = () => playPauseBtn.innerHTML = '<i class="ph-fill ph-play" style="margin-left:2px"></i>';
 
-        // --- UNIFIED SCRUBBING LOGIC (MOUSE & TOUCH) ---
+        // --- UNIVERSAL SCRUBBING LOGIC (Touch & Mouse) ---
         let isDragging = false;
 
-        // Helper: Get X position from either Mouse or Touch event
+        // 1. Unified Helper to get X Coordinate
         function getClientX(e) {
+            // If it's a touch event, get the first touch's X
+            // If it's a mouse event, get the simple clientX
             return e.touches ? e.touches[0].clientX : e.clientX;
         }
 
-        function handleScrubStart(e) {
+        // 2. Start Dragging
+        function startDrag(e) {
             isDragging = true;
-            updateScrub(e);
+            updateScrub(e); // Jump immediately to touch point
         }
 
-        function handleScrubMove(e) {
-            if (isDragging) updateScrub(e);
-        }
-
-        function handleScrubEnd(e) {
+        // 3. Stop Dragging
+        function endDrag(e) {
             if (isDragging) {
                 isDragging = false;
+                
+                // Commit the change to the audio player
                 const rect = progressContainer.getBoundingClientRect();
-                const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+                const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
                 const width = rect.width;
                 const duration = audioPlayer.duration;
 
                 if (duration) {
-                    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / width));
+                    const percent = Math.max(0, Math.min(1, (x - rect.left) / width));
                     audioPlayer.currentTime = percent * duration;
                 }
             }
         }
 
+        // 4. Update the Visual Bar (While Dragging)
         function updateScrub(e) {
             const rect = progressContainer.getBoundingClientRect();
-            const clientX = getClientX(e);
+            const x = getClientX(e); // Use our helper
             const width = rect.width;
-            let percent = ((clientX - rect.left) / width) * 100;
+            
+            let percent = ((x - rect.left) / width) * 100;
             percent = Math.max(0, Math.min(100, percent));
             
             progressFill.style.width = `${percent}%`;
             
+            // Optional: Update time text while dragging
             if (audioPlayer.duration) {
                 const previewTime = (percent / 100) * audioPlayer.duration;
                 currTimeEl.innerText = formatTime(previewTime);
             }
         }
 
-        // --- MODIFY EXISTING ONTIMEUPDATE ---
-        // We only want the auto-update to run if the user IS NOT dragging
+        // --- ATTACH LISTENERS ---
+
+        // Mouse Events
+        progressContainer.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', (e) => { if(isDragging) updateScrub(e); });
+        document.addEventListener('mouseup', endDrag);
+
+        // Touch Events (Passive: false is CRITICAL for preventing scroll)
+        progressContainer.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Stops the screen from scrolling while you scrub
+            startDrag(e);
+        }, { passive: false });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                e.preventDefault(); // Continues to stop scrolling
+                updateScrub(e);
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', endDrag);
+
+        // --- MODIFY ONTIMEUPDATE ---
+        // Only update automatically if user is NOT dragging
         audioPlayer.ontimeupdate = () => {
             if (!isDragging && audioPlayer.duration) {
                 const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
