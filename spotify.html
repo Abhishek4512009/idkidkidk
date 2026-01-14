@@ -284,21 +284,23 @@
         }
 
         /* Player Bar */
+        /* --- DOCKED PLAYER BAR --- */
         .player-bar {
             grid-area: player;
             position: fixed;
-            bottom: 16px; /* Floating effect */
-            left: 16px;
-            width: calc(100% - 32px);
-            border-radius: 12px; /* Smooth corners */
+            bottom: 0;          /* 1. Stick to very bottom */
+            left: 0;            /* 2. Align left edge */
+            width: 100%;        /* 3. Full width */
+            height: 90px;
             background: #181818;
-            border: 1px solid #282828; /* Changed from border-top to full border */
+            border-top: 1px solid #282828; /* Top border only */
+            border-radius: 0;   /* 4. No rounded corners */
             padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5); /* Add depth */
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5); /* Shadow points up now */
         }
 
         .now-playing {
@@ -351,12 +353,14 @@
             gap: 5px;
         }
 
-        /* The row of buttons */
+        /* --- ALIGNED BUTTONS --- */
         .control-buttons {
             display: flex;
-            gap: 20px;
-            align-items: center;
-            margin-bottom: 5px;
+            gap: 16px;              /* Consistent spacing */
+            align-items: center;    /* Vertically center everything */
+            justify-content: center; /* Horizontally center */
+            margin-bottom: 8px;
+            width: 100%;            /* Ensure it takes full width of parent */
         }
 
         /* The circular Play/Pause button */
@@ -435,13 +439,19 @@
             }
         }
 
+        /* Make sure icon buttons don't have weird offsets */
         .ctrl-btn {
             background: transparent;
             border: none;
             color: #b3b3b3;
             cursor: pointer;
             font-size: 1.2rem;
+            display: flex;          /* Flex keeps icons centered inside button */
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
             transition: 0.2s;
+            line-height: 0;         /* Removes text line-height issues */
         }
 
         .ctrl-btn:hover {
@@ -1151,25 +1161,71 @@
         audioPlayer.onplay = () => playPauseBtn.innerHTML = "⏸";
         audioPlayer.onpause = () => playPauseBtn.innerHTML = "▶";
 
-        // Update Progress Bar & Time
-        audioPlayer.ontimeupdate = () => {
+        // --- DRAG TO SEEK LOGIC ---
+        let isDragging = false;
+
+        // 1. Mouse Down: Start dragging, pause updates
+        progressContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            updateScrub(e); // Jump to click immediately
+        });
+
+        // 2. Mouse Move: Update visual bar ONLY (don't set audio yet to avoid skipping audio)
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updateScrub(e);
+            }
+        });
+
+        // 3. Mouse Up: Apply the new time and stop dragging
+        document.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                // Actually change the song time now
+                const rect = progressContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const duration = audioPlayer.duration;
+                
+                if (duration) {
+                     // Clamp ensures we don't seek past 0 or 100%
+                    let percent = Math.max(0, Math.min(1, clickX / width));
+                    audioPlayer.currentTime = percent * duration;
+                }
+            }
+        });
+
+        // Helper: Updates the Green Bar visually
+        function updateScrub(e) {
+            const rect = progressContainer.getBoundingClientRect();
+            // Calculate position relative to the bar
+            const clickX = e.clientX - rect.left; 
+            const width = rect.width;
+            
+            // Calculate percentage (0 to 100)
+            let percent = (clickX / width) * 100;
+            // Clamp between 0% and 100%
+            percent = Math.max(0, Math.min(100, percent));
+            
+            progressFill.style.width = `${percent}%`;
+            
+            // Optional: Update time text while dragging
             if (audioPlayer.duration) {
+                const previewTime = (percent / 100) * audioPlayer.duration;
+                currTimeEl.innerText = formatTime(previewTime);
+            }
+        }
+
+        // --- MODIFY EXISTING ONTIMEUPDATE ---
+        // We only want the auto-update to run if the user IS NOT dragging
+        audioPlayer.ontimeupdate = () => {
+            if (!isDragging && audioPlayer.duration) {
                 const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
                 progressFill.style.width = `${percent}%`;
-                
                 currTimeEl.innerText = formatTime(audioPlayer.currentTime);
                 totTimeEl.innerText = formatTime(audioPlayer.duration);
             }
         };
-
-        // Click to Seek
-        function seekAudio(e) {
-            const width = progressContainer.clientWidth;
-            const clickX = e.offsetX;
-            const duration = audioPlayer.duration;
-            
-            audioPlayer.currentTime = (clickX / width) * duration;
-        }
 
         // Format Seconds into MM:SS
         function formatTime(seconds) {
