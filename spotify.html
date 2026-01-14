@@ -144,6 +144,11 @@
         .bottom-nav {
             display: none;
         }
+        
+        /* Mobile Logout Button (Hidden on desktop) */
+        .mobile-logout {
+             display: none;
+        }
 
         .header {
             display: flex;
@@ -444,8 +449,12 @@
 
         /* Make the play button icon look right */
         .play-btn i {
-            font-size: 18px;
-            margin-left: 2px; /* Visual center correction for Play triangle */
+            font-size: 20px; /* Slightly larger */
+        }
+        
+        /* Correction for the Play Triangle visual center */
+        .play-btn .ph-play {
+             margin-left: 3px; 
         }
 
         /* Bigger hit-area for the progress bar (easier to touch) */
@@ -471,6 +480,16 @@
         @media (max-width: 768px) {
             .player-controls {
                 width: 100%;
+            }
+
+            .mobile-logout {
+                display: block;
+                background: transparent;
+                border: none;
+                color: #ff4d4d;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 5px;
             }
         }
 
@@ -754,6 +773,9 @@
                 <span style="margin-right: 10px">&#128269;</span>
                 <input type="text" id="filterInput" placeholder="Filter songs..." onkeyup="filterTracks()">
             </div>
+            <button class="mobile-logout" onclick="logout()">
+                <i class="ph-bold ph-sign-out"></i>
+            </button>
         </div>
 
         <div id="status"></div>
@@ -1151,13 +1173,13 @@
                 playPauseBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
             } else {
                 audioPlayer.pause();
-                playPauseBtn.innerHTML = '<i class="ph-fill ph-play" style="margin-left:2px"></i>';
+                playPauseBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
             }
         }
 
         // Update Button when song ends or updates externally
         audioPlayer.onplay = () => playPauseBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
-        audioPlayer.onpause = () => playPauseBtn.innerHTML = '<i class="ph-fill ph-play" style="margin-left:2px"></i>';
+        audioPlayer.onpause = () => playPauseBtn.innerHTML = '<i class="ph-fill ph-play"></i>';
 
         // --- UNIVERSAL SCRUBBING LOGIC (Touch & Mouse) ---
         let isDragging = false;
