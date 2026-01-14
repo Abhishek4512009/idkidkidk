@@ -44,7 +44,8 @@
             background-color: var(--bg-color);
             color: var(--text-primary);
             height: 100vh;
-            height: 100dvh; /* Tablet/Mobile Viewport Fix */
+            height: 100dvh;
+            /* Tablet/Mobile Viewport Fix */
             overflow: hidden;
             display: grid;
             grid-template-areas:
@@ -68,8 +69,15 @@
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.2); opacity: 1; }
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
         }
 
         /* Sidebar */
@@ -174,7 +182,8 @@
 
         .track-row {
             display: grid;
-            grid-template-columns: 50px 1fr 100px 50px; /* Added Action Column */
+            grid-template-columns: 50px 1fr 100px 50px;
+            /* Added Action Column */
             padding: 12px 16px;
             border-radius: 8px;
             color: var(--text-secondary);
@@ -227,14 +236,19 @@
             padding: 5px;
             transition: 0.2s;
         }
-        
+
         .action-btn:hover {
             color: #fff;
             transform: scale(1.1);
         }
 
-        .action-btn.add:hover { color: var(--primary-color); }
-        .action-btn.remove:hover { color: #ff4d4d; }
+        .action-btn.add:hover {
+            color: var(--primary-color);
+        }
+
+        .action-btn.remove:hover {
+            color: #ff4d4d;
+        }
 
         /* Player Bar */
         .player-bar {
@@ -297,7 +311,7 @@
             width: 40%;
             gap: 5px;
         }
-        
+
         .control-buttons {
             display: flex;
             gap: 15px;
@@ -314,8 +328,13 @@
             transition: 0.2s;
         }
 
-        .ctrl-btn:hover { color: white; }
-        .ctrl-btn.active { color: var(--primary-color); }
+        .ctrl-btn:hover {
+            color: white;
+        }
+
+        .ctrl-btn.active {
+            color: var(--primary-color);
+        }
 
         audio {
             width: 100%;
@@ -345,10 +364,14 @@
             width: 90%;
             max-width: 500px;
             position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
-        .modal h3 { margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
+        .modal h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
 
         .modal-input {
             width: 100%;
@@ -361,8 +384,10 @@
             margin-bottom: 20px;
             outline: none;
         }
-        
-        .modal-input:focus { border-color: var(--primary-color); }
+
+        .modal-input:focus {
+            border-color: var(--primary-color);
+        }
 
         .modal-actions {
             display: flex;
@@ -380,11 +405,26 @@
             transition: 0.2s;
         }
 
-        .btn-primary { background: var(--primary-color); color: white; }
-        .btn-primary:hover { transform: scale(1.05); background: #1ed760; }
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
 
-        .btn-secondary { background: transparent; color: #b3b3b3; border: 1px solid #555; }
-        .btn-secondary:hover { color: white; border-color: white; }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            background: #1ed760;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #b3b3b3;
+            border: 1px solid #555;
+        }
+
+        .btn-secondary:hover {
+            color: white;
+            border-color: white;
+        }
 
         #status {
             position: fixed;
@@ -398,10 +438,17 @@
             z-index: 500;
         }
 
-        .quality-label { width: 30%; text-align: right; font-size: 0.8rem; color: #888; }
+        .quality-label {
+            width: 30%;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #888;
+        }
 
         /* Bottom Nav (Hidden on Desktop) */
-        .bottom-nav { display: none; }
+        .bottom-nav {
+            display: none;
+        }
 
         /* --- TOUCH DEVICES (Mobile & Tablet) --- */
         /* Changed from 1024px to 768px for Tablet Optimization */
@@ -417,13 +464,16 @@
                 position: relative;
             }
 
-            .sidebar { display: none; }
+            .sidebar {
+                display: none;
+            }
 
             .main-content {
                 flex: 1;
                 width: 100%;
                 overflow-y: auto;
-                padding: 16px; /* Reduced padding */
+                padding: 16px;
+                /* Reduced padding */
                 padding-bottom: 20px;
             }
 
@@ -434,15 +484,23 @@
                 margin-bottom: 20px;
             }
 
-            .search-bar { width: 100%; max-width: 100%; }
+            .search-bar {
+                width: 100%;
+                max-width: 100%;
+            }
 
             /* Grid Fix: 30px number | Title | 40px Action */
             .track-row {
-                grid-template-columns: 30px 1fr 40px; 
+                grid-template-columns: 30px 1fr 40px;
                 gap: 8px;
                 padding: 10px;
             }
-            .track-row div:nth-child(3) { display: none; } /* Hide Size Column specifically */
+
+            .track-row div:nth-child(3) {
+                display: none;
+            }
+
+            /* Hide Size Column specifically */
 
             /* Stacked Player Bar */
             .player-bar {
@@ -450,47 +508,57 @@
                 position: relative;
                 width: 100%;
                 height: auto;
-                min-height: 90px; /* Slightly taller for controls */
+                min-height: 90px;
+                /* Slightly taller for controls */
                 background: #181818;
                 border-top: 1px solid #282828;
                 margin: 0;
                 padding: 10px 16px;
                 flex-shrink: 0;
-                flex-direction: column; /* Stack controls below info */
+                flex-direction: column;
+                /* Stack controls below info */
                 gap: 10px;
                 align-items: stretch;
             }
 
-            .now-playing { 
-                width: 100%; 
+            .now-playing {
+                width: 100%;
                 gap: 12px;
                 margin-bottom: 0;
             }
-            
-            .cover-art { width: 42px; height: 42px; font-size: 18px; }
+
+            .cover-art {
+                width: 42px;
+                height: 42px;
+                font-size: 18px;
+            }
 
             /* Player Controls on Mobile */
-            .player-controls { 
-                width: 100%; 
+            .player-controls {
+                width: 100%;
                 align-items: center;
-                flex-direction: row; /* Horizontal on mobile line 2 */
+                flex-direction: row;
+                /* Horizontal on mobile line 2 */
                 justify-content: space-between;
                 gap: 10px;
             }
-            
-            .control-buttons { 
-                display: flex; /* SHOW controls */
+
+            .control-buttons {
+                display: flex;
+                /* SHOW controls */
                 gap: 15px;
             }
-            
-            audio { 
-                height: 32px; 
-                flex: 1; 
-                width: auto; 
-                max-width: none; 
+
+            audio {
+                height: 32px;
+                flex: 1;
+                width: auto;
+                max-width: none;
             }
 
-            .quality-label { display: none; }
+            .quality-label {
+                display: none;
+            }
 
             /* Stacked Bottom Nav */
             .bottom-nav {
@@ -521,8 +589,13 @@
                 justify-content: center;
             }
 
-            .bottom-nav .nav-item.active { color: white; }
-            .bottom-nav .nav-item span:first-child { font-size: 20px; }
+            .bottom-nav .nav-item.active {
+                color: white;
+            }
+
+            .bottom-nav .nav-item span:first-child {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -569,7 +642,7 @@
                 Search for any song on YouTube and we'll download it to your personal Drive folder.
             </p>
             <input type="text" id="songInput" class="modal-input" placeholder="e.g. Blinding Lights - The Weeknd">
-            
+
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="downloadSong()" id="dlBtn">Download</button>
@@ -616,6 +689,7 @@
         </div>
     </nav>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     <script>
         const API_URL = 'https://mystream-sh78.onrender.com';
 
@@ -635,9 +709,25 @@
         let currentTrackIndex = -1;
         let isLooping = false;
         let isAutoplay = false;
+        let sortableInstance = null;
 
         // --- AUTH & INIT ---
         if (!localStorage.getItem('isLoggedIn')) window.location.href = 'login.html';
+
+        // --- INIT SORTABLE ---
+        function initSortable() {
+            if (sortableInstance) sortableInstance.destroy();
+            
+            sortableInstance = new Sortable(trackListEl, {
+                animation: 150,
+                delay: 200, // Long press to drag (prevents scroll conflict)
+                delayOnTouchOnly: true,
+                disabled: currentView !== 'library',
+                onEnd: function (evt) {
+                    saveNewOrder();
+                }
+            });
+        }
 
         // --- NAVIGATION ---
         function switchView(view) {
@@ -648,6 +738,11 @@
             document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
             if(view === 'home') document.getElementById('nav-home').classList.add('active');
             if(view === 'library') document.getElementById('nav-lib').classList.add('active');
+
+            // Update Sortable State
+            if(sortableInstance) {
+                sortableInstance.option("disabled", view !== 'library');
+            }
 
             if (view === 'home') {
                 viewTitle.innerText = "Public Library";
@@ -678,7 +773,7 @@
             }
         }
 
-        // --- RENDER & DRAG-DROP ---
+        // --- RENDER ---
         function renderTracks(tracks) {
             trackListEl.innerHTML = '';
             if(tracks.length === 0) {
@@ -690,16 +785,8 @@
                 const cleanName = track.name.replace('.mp3', '');
                 const row = document.createElement('div');
                 row.className = 'track-row';
-                if(currentView === 'library') {
-                    row.draggable = true;
-                    // Drag Events
-                    row.addEventListener('dragstart', () => { row.classList.add('dragging'); });
-                    row.addEventListener('dragend', () => { 
-                        row.classList.remove('dragging'); 
-                        saveNewOrder(); // Save after drop
-                    });
-                }
-                
+                row.dataset.id = track.id; // CRITICAL for reordering
+
                 // Action Buttons
                 let actionBtn = '';
                 if(currentView === 'home') {
@@ -727,34 +814,6 @@
                 
                 trackListEl.appendChild(row);
             });
-
-            // Drag Over Logic
-            if(currentView === 'library') {
-                trackListEl.addEventListener('dragover', e => {
-                    e.preventDefault();
-                    const afterElement = getDragAfterElement(trackListEl, e.clientY);
-                    const draggable = document.querySelector('.dragging');
-                    if (afterElement == null) {
-                        trackListEl.appendChild(draggable);
-                    } else {
-                        trackListEl.insertBefore(draggable, afterElement);
-                    }
-                });
-            }
-        }
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.track-row:not(.dragging)')];
-
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
         // --- LIBRARY ACTIONS ---
@@ -790,40 +849,18 @@
         }
 
         async function saveNewOrder() {
-            // Reconstruct array from DOM order
-            // Note: We need to map visual order back to track IDs. 
-            // Limitation: Current DOM doesn't store IDs clearly. Let's add ID to row.
-            // ... (requires re-render tweaks, for now just generic save attempt)
-            
-            // To properly Reorder: 
-            // 1. We need to associate the DOM element with the Track ID.
-            // 2. Loop through DOM, build array of IDs.
-            // 3. Send array to backend.
-            
-            // Re-render tracks will lose ID info unless stored in data attr.
-            // Let's assume we add data-id to row in fetch.
-            
-            // For now, let's just log it. (Implementing full reorder requires data-id update below)
-            console.log("Reorder triggered - Implementation requires ID in DOM");
-
-            // PROPER IMPLEMENTATION:
+            // Get all IDs in current order
             const rows = document.querySelectorAll('.track-row');
-            const newOrder = [];
-            rows.forEach(row => {
-               // We need to find the matching track object from allTracks
-               // Simpler way: add data-id="${track.id}" to the row div in renderTracks
-               const title = row.querySelector('.track-title').innerText;
-               const track = allTracks.find(t => t.name.includes(title)); 
-               if(track) newOrder.push(track.id);
-            });
+            const newOrder = Array.from(rows).map(row => row.dataset.id).filter(id => id);
             
+            console.log("Saving new order:", newOrder);
+
             await fetch(`${API_URL}/api/library/reorder`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ folderId: localStorage.getItem('folderId'), newOrder })
             });
         }
-
 
         // --- PLAYER LOGIC ---
         function playTrack(track) {
@@ -848,8 +885,7 @@
                  const nextTrack = allTracks[currentTrackIndex + 1];
                  currentTrackIndex++;
                  // Highlight next row
-                 renderTracks(allTracks); // Brute force refresh highlight (simpler)
-                 // Finding the row might be better but this works
+                 renderTracks(allTracks); 
                  playTrack(nextTrack);
              }
         };
@@ -921,6 +957,7 @@
         }
 
         // Init
+        initSortable(); // Initialize once
         fetchTracks();
     </script>
 </body>
