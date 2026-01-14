@@ -351,11 +351,88 @@
             gap: 5px;
         }
 
+        /* The row of buttons */
         .control-buttons {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
             margin-bottom: 5px;
+        }
+
+        /* The circular Play/Pause button */
+        .play-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: white;
+            color: black;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* The Progress Bar Container */
+        .playback-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.7rem;
+            color: #b3b3b3;
+            font-variant-numeric: tabular-nums; /* Keeps numbers from jumping */
+        }
+
+        /* The Grey Line */
+        .progress-container {
+            flex: 1;
+            height: 4px;
+            background: #4f4f4f;
+            border-radius: 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        /* The Green Fill */
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 2px;
+            width: 0%;
+            position: relative;
+        }
+
+        /* The White Knob (appears on hover) */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -3px;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            opacity: 0; 
+            transition: opacity 0.2s;
+        }
+
+        .progress-container:hover .progress-fill::after {
+            opacity: 1;
+        }
+        
+        /* Mobile adjustment for the new bar */
+        @media (max-width: 768px) {
+            .player-controls {
+                width: 100%;
+            }
         }
 
         .ctrl-btn {
@@ -375,10 +452,9 @@
             color: var(--primary-color);
         }
 
+        /* Hide the ugly default player */
         audio {
-            width: 100%;
-            height: 30px;
-            filter: invert(1) hue-rotate(180deg);
+            display: none;
         }
 
         /* Modal Styles */
@@ -733,9 +809,25 @@
         <div class="player-controls">
             <div class="control-buttons">
                 <button class="ctrl-btn" onclick="toggleLoop()" id="btnLoop" title="Loop One">🔁</button>
+                
+                <button class="ctrl-btn" onclick="prevTrack()" title="Previous">⏮</button>
+                
+                <button class="play-btn" onclick="togglePlay()" id="playPauseBtn">▶</button>
+                
+                <button class="ctrl-btn" onclick="nextTrack()" title="Next">⏭</button>
+                
                 <button class="ctrl-btn" onclick="toggleAutoplay()" id="btnAuto" title="Autoplay">♾️</button>
             </div>
-            <audio id="audioPlayer" controls></audio>
+
+            <div class="playback-bar">
+                <span id="currentTime">0:00</span>
+                <div class="progress-container" id="progressContainer" onclick="seekAudio(event)">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span id="totalTime">0:00</span>
+            </div>
+            
+            <audio id="audioPlayer"></audio>
         </div>
 
         <div class="quality-label">
@@ -965,12 +1057,8 @@
         }
 
         audioPlayer.onended = () => {
-            if (isAutoplay && currentTrackIndex < allTracks.length - 1) {
-                const nextTrack = allTracks[currentTrackIndex + 1];
-                currentTrackIndex++;
-                // Highlight next row
-                renderTracks(allTracks);
-                playTrack(nextTrack);
+            if (isAutoplay) {
+                nextTrack();
             }
         };
 
@@ -1038,6 +1126,84 @@
             const query = document.getElementById('filterInput').value.toLowerCase();
             const filtered = allTracks.filter(t => t.name.toLowerCase().includes(query));
             renderTracks(filtered);
+        }
+
+        // --- NEW CUSTOM PLAYER LOGIC ---
+
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progressFill = document.getElementById('progressFill');
+        const progressContainer = document.getElementById('progressContainer');
+        const currTimeEl = document.getElementById('currentTime');
+        const totTimeEl = document.getElementById('totalTime');
+
+        // Toggle Play/Pause
+        function togglePlay() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.innerHTML = "⏸"; // Pause Icon
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.innerHTML = "▶"; // Play Icon
+            }
+        }
+
+        // Update Button when song ends or updates externally
+        audioPlayer.onplay = () => playPauseBtn.innerHTML = "⏸";
+        audioPlayer.onpause = () => playPauseBtn.innerHTML = "▶";
+
+        // Update Progress Bar & Time
+        audioPlayer.ontimeupdate = () => {
+            if (audioPlayer.duration) {
+                const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressFill.style.width = `${percent}%`;
+                
+                currTimeEl.innerText = formatTime(audioPlayer.currentTime);
+                totTimeEl.innerText = formatTime(audioPlayer.duration);
+            }
+        };
+
+        // Click to Seek
+        function seekAudio(e) {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audioPlayer.duration;
+            
+            audioPlayer.currentTime = (clickX / width) * duration;
+        }
+
+        // Format Seconds into MM:SS
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        // Next Track Logic
+        function nextTrack() {
+            if (currentTrackIndex < allTracks.length - 1) {
+                currentTrackIndex++;
+                playSelectedTrack();
+            }
+        }
+
+        // Previous Track Logic
+        function prevTrack() {
+            if (currentTrackIndex > 0) {
+                currentTrackIndex--;
+                playSelectedTrack();
+            }
+        }
+
+        // Helper to keep code clean
+        function playSelectedTrack() {
+            // Update UI highlighting
+            document.querySelectorAll('.track-row').forEach(r => r.classList.remove('playing'));
+            const rows = document.querySelectorAll('.track-row');
+            if (rows[currentTrackIndex]) rows[currentTrackIndex].classList.add('playing');
+            
+            // Play
+            playTrack(allTracks[currentTrackIndex]);
         }
 
         // Init
