@@ -196,18 +196,27 @@
             padding-bottom: 50px; /* Reduced - matches actual player overlap */
         }
 
-        .track-row {
+        /* Mobile Track List Styling */
+        .track-row { 
+            /* Handle | Num | Title | Action */
             display: grid;
-            grid-template-columns: 30px 40px 1fr 100px 50px;
-            /* Added Handle Column */
-            padding: 12px 16px;
+            grid-template-columns: 30px 25px 1fr 30px; 
+            gap: 8px; 
+            padding: 12px 16px; 
+            align-items: center;
             border-radius: 8px;
             color: var(--text-secondary);
             cursor: pointer;
             transition: 0.2s;
-            align-items: center;
             user-select: none;
             -webkit-user-select: none;
+        }
+        
+        /* Desktop specific overrides for spacing if needed */
+        @media (min-width: 769px) {
+            .track-row {
+                 grid-template-columns: 30px 40px 1fr 100px 50px;
+            }
         }
 
         .track-row:hover {
@@ -232,10 +241,8 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            font-size: 1.2rem;
             transition: color 0.2s;
             touch-action: none;
-            /* Prevents scrolling while dragging on mobile */
         }
 
         .drag-handle:hover {
@@ -650,7 +657,6 @@
             }
             
             /* Mobile Track List Styling */
-            /* Mobile Track List Styling */
             .track-row { 
                 /* Handle | Num | Title | Action */
                 display: grid;
@@ -820,6 +826,48 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="downloadSong()" id="dlBtn">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Logout -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <h3>Log Out?</h3>
+            <p style="color: #b3b3b3; margin-bottom: 20px; font-size: 0.9rem;">
+                Are you sure you want to log out of your account?
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" style="background-color: #ff4d4d;" onclick="confirmLogout()">Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Adding to Library -->
+    <div id="addToLibModal" class="modal">
+        <div class="modal-content">
+            <h3>Add to Library?</h3>
+            <p id="addToLibText" style="color: #b3b3b3; margin-bottom: 20px; font-size: 0.9rem;">
+                Do you want to add this song to your library?
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmAddToLib()">Add Song</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Deleting from Library -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>Remove Song?</h3>
+            <p style="color: #b3b3b3; margin-bottom: 20px; font-size: 0.9rem;">
+                Are you sure you want to remove this song from your library?
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" style="background-color: #ff4d4d;" onclick="confirmRemoveFromLib()">Remove</button>
             </div>
         </div>
     </div>
@@ -1038,40 +1086,59 @@
         }
 
         // --- LIBRARY ACTIONS ---
-        async function addToLib(e, fileId) {
+        let pendingFileId = null;
+
+        function addToLib(e, fileId) {
             e.stopPropagation();
-
-            // Check for duplicates in current loaded tracks (if we are in home view, we might not know lib contents, 
-            // but we can check if the User blindly clicks add on the same item multiple times in session).
-            // A better check requires backend, but for now:
+            pendingFileId = fileId;
+            
+            // Optional: Update text with song name if available
             const track = allTracks.find(t => t.id === fileId);
-            if (confirm(`Add "${track ? track.name.replace('.mp3', '') : 'song'}" to your library?`) === false) return;
+            if(track) {
+                const name = track.name.replace('.mp3', '');
+                document.getElementById('addToLibText').innerText = `Add "${name}" to your library?`;
+            }
+            
+            document.getElementById('addToLibModal').style.display = 'flex';
+        }
 
-            try {
+        async function confirmAddToLib() {
+             closeModal();
+             if(!pendingFileId) return;
+             
+             try {
                 const res = await fetch(`${API_URL}/api/library/add`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileId, folderId: localStorage.getItem('folderId') })
+                    body: JSON.stringify({ fileId: pendingFileId, folderId: localStorage.getItem('folderId') })
                 });
                 if (res.ok) showStatus("✅ Added to library!", 2000);
             } catch (e) { console.error(e); }
+            pendingFileId = null;
         }
 
-        async function removeFromLib(e, fileId) {
+        function removeFromLib(e, fileId) {
             e.stopPropagation();
-            if (!confirm("Delete from your library?")) return;
+            pendingFileId = fileId;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        async function confirmRemoveFromLib() {
+            closeModal();
+            if(!pendingFileId) return;
 
             try {
                 const res = await fetch(`${API_URL}/api/library/remove`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileId })
+                    body: JSON.stringify({ fileId: pendingFileId })
                 });
                 if (res.ok) {
                     showStatus("🗑️ Deleted!", 2000);
                     fetchTracks(localStorage.getItem('folderId')); // Refresh
                 }
             } catch (e) { console.error(e); }
+            pendingFileId = null;
         }
 
         async function saveNewOrder() {
@@ -1115,16 +1182,17 @@
 
         // --- MODAL & DOWNLOAD ---
         function openModal() {
-            modal.style.display = 'flex';
+            document.getElementById('addSongModal').style.display = 'flex';
             document.getElementById('songInput').focus();
         }
 
         function closeModal() {
-            modal.style.display = 'none';
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            pendingFileId = null; // Reset
         }
 
         window.onclick = function (event) {
-            if (event.target == modal) closeModal();
+            if (event.target.classList.contains('modal')) closeModal();
         }
 
         async function downloadSong() {
@@ -1167,6 +1235,10 @@
         }
 
         function logout() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+        
+        function confirmLogout() {
             localStorage.clear();
             window.location.href = 'login.html';
         }
