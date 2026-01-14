@@ -182,8 +182,8 @@
 
         .track-row {
             display: grid;
-            grid-template-columns: 50px 1fr 100px 50px;
-            /* Added Action Column */
+            grid-template-columns: 30px 40px 1fr 100px 50px;
+            /* Added Handle Column */
             padding: 12px 16px;
             border-radius: 8px;
             color: var(--text-secondary);
@@ -205,6 +205,24 @@
         .track-row.dragging {
             opacity: 0.5;
             background: rgba(255, 255, 255, 0.05);
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .drag-handle:hover {
+            color: var(--primary-color);
+        }
+
+        .track-row.sortable-chosen .drag-handle {
+            cursor: grabbing;
         }
 
         .track-num {
@@ -489,14 +507,15 @@
                 max-width: 100%;
             }
 
-            /* Grid Fix: 30px number | Title | 40px Action */
+            /* Grid Fix: 30px Handle | 30px Number | Title | 40px Action */
             .track-row {
-                grid-template-columns: 30px 1fr 40px;
+                grid-template-columns: 30px 30px 1fr 40px;
                 gap: 8px;
                 padding: 10px;
             }
 
-            .track-row div:nth-child(3) {
+            /* Hide Size Column (4th child now) */
+            .track-row div:nth-child(4) {
                 display: none;
             }
 
@@ -601,8 +620,16 @@
     <style>
         /* SortableJS Ghost/Fallback Styles */
         .sortable-ghost {
-            opacity: 0.4;
+            opacity: 0.2;
+            background: var(--primary-color);
+            border: 1px dashed var(--primary-color);
+        }
+
+        .sortable-drag {
+            opacity: 1 !important;
             background: #282828;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            transform: scale(1.02);
         }
 
         .sortable-fallback {
@@ -734,12 +761,13 @@
 
             sortableInstance = new Sortable(trackListEl, {
                 animation: 150,
-                delay: 200,
-                delayOnTouchOnly: true,
+                handle: '.drag-handle', // Handle only
                 disabled: currentView !== 'library',
                 forceFallback: true, // Fixes mobile drag glitches
                 fallbackOnBody: true, // Fixes "far below" drag offset
                 fallbackClass: 'sortable-fallback',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
                 ghostClass: 'sortable-ghost',
                 onEnd: function (evt) {
                     saveNewOrder();
@@ -814,6 +842,7 @@
                 }
 
                 row.innerHTML = `
+                    <div class="drag-handle" title="Drag to reorder">&#9776;</div>
                     <div class="track-num">${index + 1}</div>
                     <div class="track-title">${cleanName}</div>
                     <div style="text-align: right;">${(track.size / 1024 / 1024).toFixed(1)} MB</div>
