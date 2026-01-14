@@ -625,9 +625,10 @@
     <style>
         /* SortableJS Ghost/Fallback Styles */
         .sortable-ghost {
-            opacity: 0.2;
-            background: var(--primary-color);
-            border: 1px dashed var(--primary-color);
+            opacity: 1;
+            background: transparent;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            /* Looks like an empty slot */
         }
 
         .sortable-drag {
@@ -768,7 +769,8 @@
             if (sortableInstance) sortableInstance.destroy();
 
             sortableInstance = new Sortable(trackListEl, {
-                animation: 150,
+                animation: 200, /* Smoother animation */
+                swapThreshold: 0.5, /* Easier insertion between items */
                 handle: '.drag-handle',
                 disabled: currentView !== 'library',
                 forceFallback: true,
