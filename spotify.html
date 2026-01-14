@@ -49,10 +49,9 @@
             overflow: hidden;
             display: grid;
             grid-template-areas:
-                "sidebar main"
-                "player player";
+                "sidebar main";
             grid-template-columns: var(--sidebar-width) 1fr;
-            grid-template-rows: 1fr var(--player-height);
+            grid-template-rows: 1fr;
         }
 
         /* Gradient Background */
@@ -132,6 +131,7 @@
             overflow-y: auto;
             padding: 32px;
             background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(18, 18, 18, 1) 100%);
+            padding-bottom: 120px; /* Space for fixed player */
         }
 
         .header {
