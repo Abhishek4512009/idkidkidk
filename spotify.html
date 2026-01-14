@@ -7,6 +7,7 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Drive Streamer</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script>
         // IMMEDATE AUTH CHECK
         if (!localStorage.getItem('isLoggedIn')) {
@@ -431,6 +432,40 @@
         .progress-container:hover .progress-fill::after {
             opacity: 1;
         }
+
+        /* --- ADD TO YOUR CSS --- */
+
+        /* Align icons perfectly */
+        .ctrl-btn i, .nav-item i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Make the play button icon look right */
+        .play-btn i {
+            font-size: 18px;
+            margin-left: 2px; /* Visual center correction for Play triangle */
+        }
+
+        /* Bigger hit-area for the progress bar (easier to touch) */
+        .progress-container {
+            cursor: pointer;
+            position: relative;
+            /* IMPORTANT: Stops page scrolling when dragging bar on mobile */
+            touch-action: none; 
+        }
+
+        /* Invisible box that makes the bar easier to grab */
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
         
         /* Mobile adjustment for the new bar */
         @media (max-width: 768px) {
@@ -764,10 +799,10 @@
             <span style="color: var(--primary-color); font-size: 32px;">&#9835;</span> Streamer
         </div>
         <ul class="nav-links">
-            <li class="nav-item active" onclick="switchView('home')" id="nav-home">&#127968; Home</li>
-            <li class="nav-item" onclick="openModal()" id="nav-add">&#10133; Add Song</li>
-            <li class="nav-item" onclick="switchView('library')" id="nav-lib">&#128218; Your Library</li>
-            <li class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff4d4d;">&#128682; Logout</li>
+            <li class="nav-item active" onclick="switchView('home')" id="nav-home"><i class="ph-fill ph-house"></i> Home</li>
+            <li class="nav-item" onclick="openModal()" id="nav-add"><i class="ph-bold ph-plus"></i> Add Song</li>
+            <li class="nav-item" onclick="switchView('library')" id="nav-lib"><i class="ph-fill ph-books"></i> Your Library</li>
+            <li class="nav-item" onclick="logout()" style="margin-top: auto; color: #ff4d4d;"><i class="ph-bold ph-sign-out"></i> Logout</li>
         </ul>
     </aside>
 
@@ -809,7 +844,9 @@
     <!-- Player Bar -->
     <footer class="player-bar">
         <div class="now-playing">
-            <div class="cover-art" id="currentArt">&#127925;</div>
+            <div class="cover-art" id="currentArt">
+                <i class="ph-fill ph-music-note"></i>
+            </div>
             <div class="track-info">
                 <div class="track-name-lcd" id="currentSong">No Track Selected</div>
                 <div class="artist-name-lcd">Unknown Artist</div>
@@ -818,20 +855,30 @@
 
         <div class="player-controls">
             <div class="control-buttons">
-                <button class="ctrl-btn" onclick="toggleLoop()" id="btnLoop" title="Loop One">🔁</button>
+                <button class="ctrl-btn" onclick="toggleLoop()" id="btnLoop" title="Loop">
+                    <i class="ph ph-repeat"></i>
+                </button>
                 
-                <button class="ctrl-btn" onclick="prevTrack()" title="Previous">⏮</button>
+                <button class="ctrl-btn" onclick="prevTrack()" title="Previous">
+                    <i class="ph-fill ph-skip-back"></i>
+                </button>
                 
-                <button class="play-btn" onclick="togglePlay()" id="playPauseBtn">▶</button>
+                <button class="play-btn" onclick="togglePlay()" id="playPauseBtn">
+                    <i class="ph-fill ph-play"></i>
+                </button>
                 
-                <button class="ctrl-btn" onclick="nextTrack()" title="Next">⏭</button>
+                <button class="ctrl-btn" onclick="nextTrack()" title="Next">
+                    <i class="ph-fill ph-skip-forward"></i>
+                </button>
                 
-                <button class="ctrl-btn" onclick="toggleAutoplay()" id="btnAuto" title="Autoplay">♾️</button>
+                <button class="ctrl-btn" onclick="toggleAutoplay()" id="btnAuto" title="Autoplay">
+                    <i class="ph ph-infinity"></i>
+                </button>
             </div>
 
             <div class="playback-bar">
                 <span id="currentTime">0:00</span>
-                <div class="progress-container" id="progressContainer" onclick="seekAudio(event)">
+                <div class="progress-container" id="progressContainer" style="touch-action: none;">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <span id="totalTime">0:00</span>
@@ -841,22 +888,22 @@
         </div>
 
         <div class="quality-label">
-            Stream Quality: High
+            <i class="ph-fill ph-speaker-high"></i> High Quality
         </div>
     </footer>
 
     <!-- Bottom Nav for Mobile -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchView('home')">
-            <span>&#127968;</span>
+            <span><i class="ph-fill ph-house"></i></span>
             <span>Home</span>
         </div>
         <div class="nav-item" onclick="openModal()">
-            <span>&#10133;</span>
+            <span><i class="ph-bold ph-plus"></i></span>
             <span>Add</span>
         </div>
         <div class="nav-item" onclick="switchView('library')">
-            <span>&#128218;</span>
+            <span><i class="ph-fill ph-books"></i></span>
             <span>Library</span>
         </div>
     </nav>
@@ -1150,66 +1197,58 @@
         function togglePlay() {
             if (audioPlayer.paused) {
                 audioPlayer.play();
-                playPauseBtn.innerHTML = "⏸"; // Pause Icon
+                playPauseBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
             } else {
                 audioPlayer.pause();
-                playPauseBtn.innerHTML = "▶"; // Play Icon
+                playPauseBtn.innerHTML = '<i class="ph-fill ph-play" style="margin-left:2px"></i>';
             }
         }
 
         // Update Button when song ends or updates externally
-        audioPlayer.onplay = () => playPauseBtn.innerHTML = "⏸";
-        audioPlayer.onpause = () => playPauseBtn.innerHTML = "▶";
+        audioPlayer.onplay = () => playPauseBtn.innerHTML = '<i class="ph-fill ph-pause"></i>';
+        audioPlayer.onpause = () => playPauseBtn.innerHTML = '<i class="ph-fill ph-play" style="margin-left:2px"></i>';
 
-        // --- DRAG TO SEEK LOGIC ---
+        // --- UNIFIED SCRUBBING LOGIC (MOUSE & TOUCH) ---
         let isDragging = false;
 
-        // 1. Mouse Down: Start dragging, pause updates
-        progressContainer.addEventListener('mousedown', (e) => {
+        // Helper: Get X position from either Mouse or Touch event
+        function getClientX(e) {
+            return e.touches ? e.touches[0].clientX : e.clientX;
+        }
+
+        function handleScrubStart(e) {
             isDragging = true;
-            updateScrub(e); // Jump to click immediately
-        });
+            updateScrub(e);
+        }
 
-        // 2. Mouse Move: Update visual bar ONLY (don't set audio yet to avoid skipping audio)
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                updateScrub(e);
-            }
-        });
+        function handleScrubMove(e) {
+            if (isDragging) updateScrub(e);
+        }
 
-        // 3. Mouse Up: Apply the new time and stop dragging
-        document.addEventListener('mouseup', (e) => {
+        function handleScrubEnd(e) {
             if (isDragging) {
                 isDragging = false;
-                // Actually change the song time now
                 const rect = progressContainer.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
+                const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
                 const width = rect.width;
                 const duration = audioPlayer.duration;
-                
+
                 if (duration) {
-                     // Clamp ensures we don't seek past 0 or 100%
-                    let percent = Math.max(0, Math.min(1, clickX / width));
+                    const percent = Math.max(0, Math.min(1, (clientX - rect.left) / width));
                     audioPlayer.currentTime = percent * duration;
                 }
             }
-        });
+        }
 
-        // Helper: Updates the Green Bar visually
         function updateScrub(e) {
             const rect = progressContainer.getBoundingClientRect();
-            // Calculate position relative to the bar
-            const clickX = e.clientX - rect.left; 
+            const clientX = getClientX(e);
             const width = rect.width;
-            
-            // Calculate percentage (0 to 100)
-            let percent = (clickX / width) * 100;
-            // Clamp between 0% and 100%
+            let percent = ((clientX - rect.left) / width) * 100;
             percent = Math.max(0, Math.min(100, percent));
             
             progressFill.style.width = `${percent}%`;
             
-            // Optional: Update time text while dragging
             if (audioPlayer.duration) {
                 const previewTime = (percent / 100) * audioPlayer.duration;
                 currTimeEl.innerText = formatTime(previewTime);
