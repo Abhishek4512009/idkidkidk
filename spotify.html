@@ -46,6 +46,12 @@
             height: 100vh;
             height: 100dvh;
             /* Tablet/Mobile Viewport Fix */
+            
+            /* Fix for animated background overflow */
+            position: relative;
+            width: 100vw;
+            overscroll-behavior: none;
+            
             overflow: hidden;
             display: grid;
             grid-template-areas:
