@@ -190,6 +190,8 @@
             cursor: pointer;
             transition: 0.2s;
             align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .track-row:hover {
@@ -214,7 +216,10 @@
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
+            font-size: 1.2rem;
             transition: color 0.2s;
+            touch-action: none;
+            /* Prevents scrolling while dragging on mobile */
         }
 
         .drag-handle:hover {
@@ -761,10 +766,12 @@
 
             sortableInstance = new Sortable(trackListEl, {
                 animation: 150,
-                handle: '.drag-handle', // Handle only
+                handle: '.drag-handle',
                 disabled: currentView !== 'library',
-                forceFallback: true, // Fixes mobile drag glitches
-                fallbackOnBody: true, // Fixes "far below" drag offset
+                forceFallback: true,
+                fallbackOnBody: true,
+                fallbackTolerance: 5, // Sensitivity
+                scroll: true,        // Auto-scroll
                 fallbackClass: 'sortable-fallback',
                 chosenClass: 'sortable-chosen',
                 dragClass: 'sortable-drag',
