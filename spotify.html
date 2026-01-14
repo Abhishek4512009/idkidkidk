@@ -598,6 +598,20 @@
             }
         }
     </style>
+    <style>
+        /* SortableJS Ghost/Fallback Styles */
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #282828;
+        }
+
+        .sortable-fallback {
+            opacity: 1 !important;
+            background: #181818;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            cursor: grabbing;
+        }
+    </style>
 </head>
 
 <body>
@@ -702,10 +716,10 @@
         const modal = document.getElementById('addSongModal');
         const btnLoop = document.getElementById('btnLoop');
         const btnAuto = document.getElementById('btnAuto');
-        
+
         // State
-        let allTracks = []; 
-        let currentView = 'home'; 
+        let allTracks = [];
+        let currentView = 'home';
         let currentTrackIndex = -1;
         let isLooping = false;
         let isAutoplay = false;
@@ -717,12 +731,16 @@
         // --- INIT SORTABLE ---
         function initSortable() {
             if (sortableInstance) sortableInstance.destroy();
-            
+
             sortableInstance = new Sortable(trackListEl, {
                 animation: 150,
-                delay: 200, // Long press to drag (prevents scroll conflict)
+                delay: 200,
                 delayOnTouchOnly: true,
                 disabled: currentView !== 'library',
+                forceFallback: true, // Fixes mobile drag glitches
+                fallbackOnBody: true, // Fixes "far below" drag offset
+                fallbackClass: 'sortable-fallback',
+                ghostClass: 'sortable-ghost',
                 onEnd: function (evt) {
                     saveNewOrder();
                 }
@@ -734,19 +752,19 @@
             currentView = view;
             document.getElementById('loading').style.display = 'block';
             trackListEl.innerHTML = '';
-            
+
             document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
-            if(view === 'home') document.getElementById('nav-home').classList.add('active');
-            if(view === 'library') document.getElementById('nav-lib').classList.add('active');
+            if (view === 'home') document.getElementById('nav-home').classList.add('active');
+            if (view === 'library') document.getElementById('nav-lib').classList.add('active');
 
             // Update Sortable State
-            if(sortableInstance) {
+            if (sortableInstance) {
                 sortableInstance.option("disabled", view !== 'library');
             }
 
             if (view === 'home') {
                 viewTitle.innerText = "Public Library";
-                fetchTracks(); 
+                fetchTracks();
             } else {
                 viewTitle.innerText = "My Private Collection";
                 fetchTracks(localStorage.getItem('folderId'));
@@ -765,7 +783,7 @@
 
                 allTracks = await res.json();
                 renderTracks(allTracks);
-                
+
                 document.getElementById('loading').style.display = 'none';
             } catch (err) {
                 document.getElementById('loading').innerText = "Error loading tracks.";
@@ -776,7 +794,7 @@
         // --- RENDER ---
         function renderTracks(tracks) {
             trackListEl.innerHTML = '';
-            if(tracks.length === 0) {
+            if (tracks.length === 0) {
                 trackListEl.innerHTML = '<div style="padding:20px; color:#555;">No songs found here yet.</div>';
                 return;
             }
@@ -789,7 +807,7 @@
 
                 // Action Buttons
                 let actionBtn = '';
-                if(currentView === 'home') {
+                if (currentView === 'home') {
                     actionBtn = `<button class="action-btn add" onclick="addToLib(event, '${track.id}')" title="Add to Library">&#10133;</button>`;
                 } else {
                     actionBtn = `<button class="action-btn remove" onclick="removeFromLib(event, '${track.id}')" title="Remove">&#128465;</button>`;
@@ -801,7 +819,7 @@
                     <div style="text-align: right;">${(track.size / 1024 / 1024).toFixed(1)} MB</div>
                     <div class="track-actions">${actionBtn}</div>
                 `;
-                
+
                 row.onclick = (e) => {
                     // Ignore clicks on action buttons
                     if (e.target.closest('.action-btn')) return;
@@ -811,7 +829,7 @@
                     row.classList.add('playing');
                     playTrack(track);
                 };
-                
+
                 trackListEl.appendChild(row);
             });
         }
@@ -819,21 +837,26 @@
         // --- LIBRARY ACTIONS ---
         async function addToLib(e, fileId) {
             e.stopPropagation();
-            if(!confirm("Add to your private library?")) return;
-            
+
+            // Check for duplicates in current loaded tracks (if we are in home view, we might not know lib contents, 
+            // but we can check if the User blindly clicks add on the same item multiple times in session).
+            // A better check requires backend, but for now:
+            const track = allTracks.find(t => t.id === fileId);
+            if (confirm(`Add "${track ? track.name.replace('.mp3', '') : 'song'}" to your library?`) === false) return;
+
             try {
                 const res = await fetch(`${API_URL}/api/library/add`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fileId, folderId: localStorage.getItem('folderId') })
                 });
-                if(res.ok) showStatus("✅ Added to library!", 2000);
-            } catch(e) { console.error(e); }
+                if (res.ok) showStatus("✅ Added to library!", 2000);
+            } catch (e) { console.error(e); }
         }
 
         async function removeFromLib(e, fileId) {
             e.stopPropagation();
-            if(!confirm("Delete from your library?")) return;
+            if (!confirm("Delete from your library?")) return;
 
             try {
                 const res = await fetch(`${API_URL}/api/library/remove`, {
@@ -841,18 +864,18 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fileId })
                 });
-                if(res.ok) {
+                if (res.ok) {
                     showStatus("🗑️ Deleted!", 2000);
                     fetchTracks(localStorage.getItem('folderId')); // Refresh
                 }
-            } catch(e) { console.error(e); }
+            } catch (e) { console.error(e); }
         }
 
         async function saveNewOrder() {
             // Get all IDs in current order
             const rows = document.querySelectorAll('.track-row');
             const newOrder = Array.from(rows).map(row => row.dataset.id).filter(id => id);
-            
+
             console.log("Saving new order:", newOrder);
 
             await fetch(`${API_URL}/api/library/reorder`, {
@@ -881,13 +904,13 @@
         }
 
         audioPlayer.onended = () => {
-             if(isAutoplay && currentTrackIndex < allTracks.length - 1) {
-                 const nextTrack = allTracks[currentTrackIndex + 1];
-                 currentTrackIndex++;
-                 // Highlight next row
-                 renderTracks(allTracks); 
-                 playTrack(nextTrack);
-             }
+            if (isAutoplay && currentTrackIndex < allTracks.length - 1) {
+                const nextTrack = allTracks[currentTrackIndex + 1];
+                currentTrackIndex++;
+                // Highlight next row
+                renderTracks(allTracks);
+                playTrack(nextTrack);
+            }
         };
 
 
@@ -901,7 +924,7 @@
             modal.style.display = 'none';
         }
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target == modal) closeModal();
         }
 
@@ -910,7 +933,7 @@
             if (!songName) return;
 
             const folderId = localStorage.getItem('folderId');
-            
+
             showStatus(`🔎 Searching & Downloading...`);
             dlBtn.innerHTML = "Downloading...";
             dlBtn.disabled = true;
@@ -926,7 +949,7 @@
                     showStatus("✅ Added to your library!", 4000);
                     document.getElementById('songInput').value = "";
                     closeModal();
-                    if(currentView === 'library') fetchTracks(folderId);
+                    if (currentView === 'library') fetchTracks(folderId);
                 } else {
                     const err = await res.text();
                     showStatus(`❌ Error: ${err}`, 5000);
@@ -948,7 +971,7 @@
             localStorage.clear();
             window.location.href = 'login.html';
         }
-        
+
         // Client Filter
         function filterTracks() {
             const query = document.getElementById('filterInput').value.toLowerCase();
