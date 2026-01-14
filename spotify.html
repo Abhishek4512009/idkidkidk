@@ -449,12 +449,12 @@
 
         /* Make the play button icon look right */
         .play-btn i {
-            font-size: 20px; /* Slightly larger */
+            font-size: 22px; /* Optimized fill */
         }
-        
+
         /* Correction for the Play Triangle visual center */
         .play-btn .ph-play {
-             margin-left: 3px; 
+             margin-left: 2px;
         }
 
         /* Bigger hit-area for the progress bar (easier to touch) */
@@ -650,21 +650,41 @@
             }
             
             /* Mobile Track List Styling */
+            /* Mobile Track List Styling */
             .track-row { 
-                grid-template-columns: 30px 1fr 40px; 
-                gap: 10px; 
+                /* Handle | Num | Title | Action */
+                display: grid;
+                grid-template-columns: 30px 25px 1fr 30px; 
+                gap: 8px; 
                 padding: 12px 8px; 
+                align-items: center;
             }
-            /* Hide unused columns on mobile */
-            .track-row div:nth-child(1), /* Handle (optional to hide) */
-            .track-row div:nth-child(2), /* Number */
-            .track-row div:nth-child(4)  /* Size */ 
-            { display: none; }
             
-            .track-row { display: flex; align-items: center; justify-content: space-between; }
-            .track-title { font-size: 1rem; max-width: 70%; }
+            /* Hide ONLY Size on mobile */
+            .track-row div:nth-child(4) { display: none; }
+            
+            .track-title { 
+                font-size: 0.95rem; 
+                width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
 
-            /* --- STACKED BARS FIX --- */
+            /* Mobile: Adjust Handle & Number Styles */
+            .drag-handle { 
+                display: flex; 
+                font-size: 1.2rem; 
+                color: #555; 
+            }
+            .track-num { 
+                display: block; 
+                font-size: 0.8rem; 
+                color: #555; 
+                text-align: center;
+            }
+
+        /* --- STACKED BARS FIX --- */
 
             /* 1. PLAYER BAR: Sits ABOVE the navigation */
             .player-bar {
