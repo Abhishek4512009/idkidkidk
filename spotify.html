@@ -1103,18 +1103,18 @@
         }
 
         async function confirmAddToLib() {
-             closeModal();
-             if(!pendingFileId) return;
+            const fileId = pendingFileId; // Capture ID before it gets reset
+            closeModal();
+            if(!fileId) return;
              
              try {
                 const res = await fetch(`${API_URL}/api/library/add`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileId: pendingFileId, folderId: localStorage.getItem('folderId') })
+                    body: JSON.stringify({ fileId: fileId, folderId: localStorage.getItem('folderId') })
                 });
                 if (res.ok) showStatus("✅ Added to library!", 2000);
             } catch (e) { console.error(e); }
-            pendingFileId = null;
         }
 
         function removeFromLib(e, fileId) {
@@ -1124,21 +1124,21 @@
         }
 
         async function confirmRemoveFromLib() {
+            const fileId = pendingFileId; // Capture ID before it gets reset
             closeModal();
-            if(!pendingFileId) return;
+            if(!fileId) return;
 
             try {
                 const res = await fetch(`${API_URL}/api/library/remove`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fileId: pendingFileId })
+                    body: JSON.stringify({ fileId: fileId })
                 });
                 if (res.ok) {
                     showStatus("🗑️ Deleted!", 2000);
                     fetchTracks(localStorage.getItem('folderId')); // Refresh
                 }
             } catch (e) { console.error(e); }
-            pendingFileId = null;
         }
 
         async function saveNewOrder() {
